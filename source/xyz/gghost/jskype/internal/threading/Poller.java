@@ -11,6 +11,7 @@ import xyz.gghost.jskype.api.events.UserLeaveEvent;
 import xyz.gghost.jskype.api.events.UserTypingEvent;
 import xyz.gghost.jskype.internal.packet.BasePacket;
 import xyz.gghost.jskype.internal.packet.RequestType;
+import xyz.gghost.jskype.internal.packet.packets.GetConvos;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
 import xyz.gghost.jskype.var.*;
 
@@ -194,7 +195,9 @@ public class Poller extends Thread {
         if (data == null)
             return;
         JSONObject recent = new JSONObject(data);
-        String topic = recent.getJSONObject("threadProperties").isNull("topic") ? "" : recent.getJSONObject("properties").getString("topic");
+
+        Group group = new Group(idShort, "", null);
+        group = new GetConvos(api, usr).setTopicAndPic(idLong, group);
         BasePacket members = new BasePacket(api);
         members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
         members.setType(RequestType.GET);
@@ -220,8 +223,8 @@ public class Poller extends Thread {
                 continue;
             }
         }
-        //Add the group to recent
-        api.getUser().getGroupCache().add(new Group(idShort, topic, groupMembers));
+        group.setConnectedClients(groupMembers);
+        api.getUser().getGroupCache().add(group);
 
     }
 

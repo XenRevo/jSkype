@@ -45,8 +45,8 @@ public class GetConvos {
             if (recent.getString("targetLink").contains("/contacts/8:"))
                 continue;
             String id = recent.getString("id").split(":")[1].split("@")[0];
-            String topic = recent.getJSONObject("threadProperties").isNull("topic") ? "" : recent.getJSONObject("threadProperties").getString("topic");
-            topic = StringEscapeUtils.unescapeHtml4(topic);
+            Group group = new Group(id, "", null);
+            group = this.setTopicAndPic(recent.getString("id"), group);
             BasePacket members = new BasePacket(api);
             members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + recent.getString("id") + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
             members.setType(RequestType.GET);
@@ -67,10 +67,25 @@ public class GetConvos {
                     continue;
                 }
             }
-            Group group = new Group(id, topic, groupMembers);
+            group.setConnectedClients(groupMembers);
             groups.add(group);
         }
         return groups;
     }
 
+    public Group setTopicAndPic(String id, Group group){
+        BasePacket packet = new BasePacket(api);
+        packet.setType(RequestType.GET);
+        packet.setUrl("https://client-s.gateway.messenger.live.com/v1/threads/19:a06403e6a7d34589a358eafbcb639d3e@thread.skype?view=msnp24Equivalent");
+        String data = packet.makeRequest(usr);
+        if (data == null)
+             return group;
+        JSONObject o = new JSONObject(data).getJSONObject("properties");
+        if (!o.isNull("topic"))
+            group.setTopic(o.getString("topic"));
+
+        if (!o.isNull("picture"))
+            group.setPictureUrl(o.getString("picture").split("@")[1]);
+        return group;
+    }
 }

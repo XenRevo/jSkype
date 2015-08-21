@@ -14,6 +14,7 @@ public class Group {
     private ArrayList<GroupUser> connectedClients = new ArrayList<GroupUser>();
     private String topic = "NPE";
     private String chatId = "";
+    private String pictureUrl = "";
 
     public Group(String chatId, String topic, ArrayList<GroupUser> users) {
         this.chatId = chatId;
