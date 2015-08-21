@@ -86,6 +86,43 @@ public class Test {
 }
 ```
 #Example command handler usage:
+To register a command:
+```java
+skype.getCommandManager().addCommand(new CommandTest(skype, skype.getUser()));
+```
+A very poor example of a command:
+```java
+public class CommandTest extends Command{
+
+    SkypeAPI api;
+    LocalAccount acc;
+    public CommandTest(SkypeAPI api, LocalAccount acc){
+        super("-info");                //Command prefix + command = comandname 
+        this.api = api;
+        this.acc = acc;
+    }
+  
+    @Override 
+    public void called(Message msg, Group group, String args){ 
+    //msg = orignal message
+    //group = group the message was received from 
+    //args = everything after the comandname (prefix + command)
+        if (args.equals("") || args.equals("info")) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(Chat.bold("CommandTest info:") + "\n");
+            builder.append("CommandTest: " + this.getName() + "\n");
+            builder.append("Args passed: " + args + "\n");
+            builder.append("Message: " + msg.getMessage() + "\n");
+            builder.append(Chat.bold("Chat info:") + "\n");
+            builder.append("Group ID: " + group.getChatId() + "\n");
+            builder.append("Connected clients: " + group.getConnectedClients().size() + "\n");
+            group.sendMessage(api,  builder.toString());
+        }
+    }
+
+}
+```
+
 #Dependancies
 - commons-lang 3
 - org.json (repo contains fork)
