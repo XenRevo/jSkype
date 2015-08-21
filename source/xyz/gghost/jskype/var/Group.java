@@ -37,22 +37,22 @@ public class Group {
         }
         return false;
     }
-
+    /** Leave the group */
+    public void leave(SkypeAPI api){
+        kick(api, api.getUser().getUsername().toLowerCase());
+    }
     /** Send a message to the group*/
     public Message sendMessage(SkypeAPI api, String message) {
         return new SendMessagePacket(api, api.getUser()).sendMessage(this, new Message(message));
     }
-
     /** Send a message to the group*/
     public Message sendMessage(SkypeAPI api, Message message) {
         return new SendMessagePacket(api, api.getUser()).sendMessage(this, message);
     }
-
     /** Remove a user from the group - must be MASTER */
     public boolean kick(SkypeAPI api, String username) {
         return new UserManagementPacket(api, api.getUser()).kickUser(chatId, username);
     }
-
     /** Remove a user from the group - must be MASTER */
     public boolean kick(SkypeAPI api, User user) {
         return kick(api, user.getUsername());
@@ -62,7 +62,6 @@ public class Group {
     public boolean add(SkypeAPI api, String username) {
         return new UserManagementPacket(api, api.getUser()).addUser(chatId, username);
     }
-
     /** Add a user to the group */
     public boolean add(SkypeAPI api, User user) {
         return add(api, user.getUsername());

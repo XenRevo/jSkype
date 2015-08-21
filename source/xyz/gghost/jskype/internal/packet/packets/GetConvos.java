@@ -45,7 +45,7 @@ public class GetConvos {
             if (recent.getString("targetLink").contains("/contacts/8:"))
                 continue;
             String id = recent.getString("id").split(":")[1].split("@")[0];
-            String topic = recent.isNull("recent") ? "" : recent.getJSONObject("threadProperties").getString("topic");
+            String topic = recent.getJSONObject("threadProperties").isNull("topic") ? "" : recent.getJSONObject("threadProperties").getString("topic");
             topic = StringEscapeUtils.unescapeHtml4(topic);
             BasePacket members = new BasePacket(api);
             members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + recent.getString("id") + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");

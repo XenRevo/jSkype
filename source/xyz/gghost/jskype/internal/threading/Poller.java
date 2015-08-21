@@ -194,7 +194,7 @@ public class Poller extends Thread {
         if (data == null)
             return;
         JSONObject recent = new JSONObject(data);
-        String topic = recent.isNull("recent") ? "" : recent.getJSONObject("properties").getString("topic");
+        String topic = recent.getJSONObject("threadProperties").isNull("topic") ? "" : recent.getJSONObject("properties").getString("topic");
         BasePacket members = new BasePacket(api);
         members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
         members.setType(RequestType.GET);
