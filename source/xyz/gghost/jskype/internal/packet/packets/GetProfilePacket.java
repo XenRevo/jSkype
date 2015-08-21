@@ -26,7 +26,17 @@ public class GetProfilePacket {
 
         String data = packet.makeRequest(usr);
         if (data == null) {
-            return null;
+            System.out.println("Failed to get profile of " + username  + " due to an internal server error");
+            System.out.println("Someone may have blocked you or have high privacy settings.");
+            System.out.println("You can ignore this...\nDEBUG DATA:");
+            System.out.println("URL: " + packet.getUrl());
+            System.out.println("Data: " + packet.getData());
+            System.out.println("RegToken: " + usr.getRegToken());
+            System.out.println("XToken: " + usr.getXSkypeToken());
+            user.setDisplayName(username);
+            user.setUsername(username);
+            user.setMood("");
+            return user;
         }
         data = data.replaceFirst("\\[", "").replace("]", "");
         JSONObject jsonObject = new JSONObject(data);

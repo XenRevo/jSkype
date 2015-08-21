@@ -73,6 +73,10 @@ public class BasePacket {
                 System.out.println(this.url + " returned 401. \nHave you been running jSkype for more than 2 days?\nWithin 4 seconds the ping-er should relog you in.\n\n");
                 return "---";
             } else {
+                //GetProfile will handle the debugging info
+                if(url.equals("https://api.skype.com/users/self/contacts/profiles"))
+                    return null;
+                //Debug info
                 System.out.println("Error contacting skype\nUrl: "+ url + "\nCode: "+responseCode + "\nData: " + data );
                 for (Header header : headers){
                     System.out.println(header.getType() + ": " + header.getData());
