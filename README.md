@@ -1,5 +1,5 @@
 # jSkype
-jSkype creation started when skype4web was released, however at the time I was making a private Skype client in Java, not an API. Samczsun, better known as super salter 9000 was creating an extremely limited api at the time of my client creation and still is today. In order to spare people from his limited api, I'm releasing jSkype
+jSkype creation started when skype4web was released, however at the time I was making a private Skype client in Java, not an API. Samczsun, better known as super salter 9000 was creating an extremely limited api at the time of my client creation and still is today. In order to spare people from his limited api, I'm releasing jSkype.
 #Links
 JavaDocs: http://gghost.xyz/JavaDocs/jSkype
 
@@ -16,16 +16,6 @@ Example email/pass:
 ```java
 SkypeAPI skype = new SkypeAPI("ghost@ghosted.me", "NotGhostBot", "{password here}");
 ```
-#Sending chat messages
-
-for (User user : skype.getUser().getContacts()){
-  user.sendMessage(skype, Chat.blink(Chat.bold(":/")));
-}
-for (Group group : skype.getUser().getGroups()){
-  group.sendMessage(skype, Chat.blink(Chat.bold(":/")));
-}
-
-## Formatting messages
 
 #Where are all the methods?
 jSkype is split up into two main classes; LocalAccount and SkypeAPI. SkypeAPI is mainly useless, however it contains the LocalAccount instance, which is where the recent groups, contacts, send messages, etc is hold. Checking the JavaDocs would help out, but it's safe to assume most of what you'll want is in SkypeAPI.getUser() (LocalAccount)
@@ -33,6 +23,28 @@ jSkype is split up into two main classes; LocalAccount and SkypeAPI. SkypeAPI is
 API Related (event listeners, command handlers, LocalAccount instance, etc): SkypeAPI
 
 User related (contact requests, active groups, contacts, login, etc): LocalAccount
+#Sending chat messages
+Sending a message to all contacts example:
+```java
+for (User user : skype.getUser().getContacts()){
+  user.sendMessage(skype, "Hi");
+}
+```
+Sending a message to all recent groups example:
+```java
+for (Group group : skype.getUser().getGroups()){
+  group.sendMessage(skype, "Hi");
+}
+```
+Editing a message:
+```java
+Message message = group.sendMessage(skype, "Hi");
+message.setMessage("");
+message.updateEdit(skype);
+```
+## Formatting messages
+The "Chat" class is a utilities class for formatting. To format "hi" in bold, you can do "Chat.bold("hi")", which will return "hi" with the html Skype tags. If you wanted "hi" to be in bold and blink, you can do "Chat.bold(Chat.blink("hi"))".
+
 #Example event handler usage:
 In order to listen for an event, create a class that implements EventListener, and register it by calling "api.getEventManager().registerListener(new YourListener(skype));" All event's can be found the "xyz.gghost.jskype.api" package
 
@@ -51,12 +63,12 @@ public class Test {
     static boolean inRunning = true;
     public static void main(String[] args) {
         SkypeAPI skype = new SkypeAPI("NotGhostBot", "{password here}"); //login
-        System.out.println("Loaded skype..."); //Tell the user that skype has fully initialized - getting contacts, recent, etc can take a few seconds
+        System.out.println("Loaded Skype..."); //Tell the user that skype has fully initialized - getting contacts, recent, etc can take a few seconds
 
         skype.getEventManager().registerListener(new ExampleListener(skype)); //Register listener
 
         while (inRunning){} //This program is multithreaded and the main thread doesn't get used, so you'll want an (infinite) delay to keep the program open.
-        skype.stop(); //Close skype related threads - shutting it down
+        skype.stop(); //Close Skype related threads - shutting it down
 
     }
 }
