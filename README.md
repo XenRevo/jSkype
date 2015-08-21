@@ -22,11 +22,11 @@ Before creating a Skype instance, you'll need to confirm whether or not you logi
 
 Example user/pass: 
 ```java
-SkypeAPI skype = new SkypeAPI("NotGhostBot", "{password here}");
+SkypeAPI skype = new SkypeAPI("NotGhostBot", "Password");
 ```
 Example email/pass: 
 ```java
-SkypeAPI skype = new SkypeAPI("ghost@ghosted.me", "NotGhostBot", "{password here}");
+SkypeAPI skype = new SkypeAPI("ghost@ghosted.me", "NotGhostBot", "Password");
 ```
 
 #Where are all the methods?
