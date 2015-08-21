@@ -123,7 +123,7 @@ public class CommandTest extends Command{
 }
 ```
 
-#Dependancies
+#Dependencies
 - commons-lang 3
 - org.json (repo contains fork)
 - jsoup (repo contains sams authenticator)
