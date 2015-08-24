@@ -33,6 +33,7 @@ Dependency:
 - Format messages
 - Accept contact requests
 - Send contact requests
+- User information
 
 #Creating a skype instance
 Before creating a Skype instance, you'll need to confirm whether or not you login with an email/pass or user/pass. If you login with a username and password, you can create a new instance of SkypeAPI with the arguments (username, password), otherwise people with email logins should pass (email, username, password)
