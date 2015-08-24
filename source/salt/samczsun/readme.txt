@@ -1,0 +1,1 @@
+ Ay, remember when you said "have fun getting auth to work"? Yeah, I sat back with my hackky system, and you've all the work for me. Thanks. 
