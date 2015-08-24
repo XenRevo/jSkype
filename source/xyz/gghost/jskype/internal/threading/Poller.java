@@ -50,7 +50,6 @@ public class Poller extends Thread {
 
         for (int i = 0; i < json.length(); i++) {
             JSONObject object = json.getJSONObject(i);
-
             try {
                 if (!(object.isNull("type") && object.isNull("resourceType"))) {
                     Conversation chat = new Conversation(api, "", false);
@@ -66,9 +65,9 @@ public class Poller extends Thread {
                             chat.setUserChat(true);
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                         //invalid data - don't need it
                     }
-
 
                     //thread update
                     if (object.getString("resourceType").equals("ThreadUpdate")) {
@@ -82,7 +81,6 @@ public class Poller extends Thread {
                         String shortId = object.getString("resourceLink").split("19:")[1].split("@")[0];
                         for (Group groups : usr.getGroups()) {
                             if (groups.getChatId().equals(shortId)) {
-                                System.out.println(groups.getChatId() + "==" + shortId);
                                 for (GroupUser usr : groups.getConnectedClients()) {
                                     oldUsers.add(usr.getAccount().getUsername().toLowerCase());
                                     oldUsers2.add(usr.getAccount().getUsername().toLowerCase());
@@ -93,7 +91,7 @@ public class Poller extends Thread {
                         if (oldGroup != null) {
 
                             JSONObject resource = object.getJSONObject("resource");
-                            String topic = resource.getJSONObject("properties").isNull("topic") ? "" : resource.getJSONObject("properties").getString("topic");
+                            String topic = oldGroup.getTopic();
                             String picture = resource.getJSONObject("properties").isNull("picture") ? "" : resource.getJSONObject("properties").getString("picture");
 
                             Group group = new Group(shortId, topic, null);
@@ -133,15 +131,21 @@ public class Poller extends Thread {
                         }
 
                     }
-
                     //Add to recent cache
-                    addGroupToRecent(object);
+                    if (!chat.isUserChat())
+                        addGroupToRecent(object);
+
                     //resource json
                     JSONObject resource = object.getJSONObject("resource");
 
                     //Get topic update
                     if (!resource.isNull("messagetype") && resource.getString("messagetype").equals("ThreadActivity/TopicUpdate")) {
-
+                        String topic = resource.getString("content").split("<value>")[1].split("<\\/value>")[0];
+                        String username = resource.getString("content").split("<initiator>8:")[1].split("<\\/initiator>")[0];
+                        String oldTopic = usr.getGroupById(chat.getId()).getTopic();
+                        User user = getUser(username, chat);
+                        api.getEventManager().executeEvent(new TopicChangedEvent(chat.getGroup(), user, topic, oldTopic));
+                        usr.getGroupById(chat.getId()).setTopic(topic);
                     }
 
                     //Get Typing
@@ -150,28 +154,31 @@ public class Poller extends Thread {
                         api.getEventManager().executeEvent(new UserTypingEvent(chat, from));
                     }
 
-                    //Get message
-                    if (!resource.isNull("messagetype") && resource.getString("messagetype").equals("RichText")) {
 
-                        User user = getUser(resource.getString("from").split("8:")[1], chat);
+                    //Get message
+                    if (!resource.isNull("messagetype") && (resource.getString("messagetype").equals("RichText") || resource.getString("messagetype").equals("Text"))) {
+
                         Message message = new Message();
+                        User user = getUser(resource.getString("from").split("8:")[1], chat);
+                        String content = resource.getString("content");
+                        content = StringEscapeUtils.unescapeHtml4(content);
+                        content = StringEscapeUtils.unescapeHtml3(content);
                         if (!resource.isNull("clientmessageid"))
                             message.setId(resource.getString("clientmessageid"));
                         if (!resource.isNull("skypeeditedid")) {
+                            content = content.replaceFirst("Edited previous message: ", "").split("<e_m")[0];
                             message.setId(resource.getString("skypeeditedid"));
                             message.setEdited(true);
                         }
                         message.setSender(user);
                         message.setTime(resource.getString("originalarrivaltime"));
                         message.setUpdateUrl(object.getString("resourceLink").split("/messages/")[0] + "/messages");
-                        String content = resource.getString("content");
-                        content = StringEscapeUtils.unescapeHtml4(content);
-                        content = StringEscapeUtils.unescapeHtml3(content);
                         message.setMessage(content);
 
 
                         api.getCommandManager().runCommand(message, chat);
                         api.getEventManager().executeEvent(new UserChatEvent(chat, user, message));
+
                     }
 
                     //pings
