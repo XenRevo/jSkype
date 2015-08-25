@@ -62,7 +62,7 @@ for (User user : skype.getUser().getContacts()){
 ```
 Sending a message to all recent groups example:
 ```java
-for (Group group : skype.getUser().getGroups()){
+for (Conversation group : skype.getUser().getRecent()){
   group.sendMessage(skype, "Hi");
 }
 ```
