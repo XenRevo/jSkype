@@ -69,8 +69,7 @@ for (Conversation group : skype.getSkype().getRecent()){
 Editing a message:
 ```java
 Message message = group.sendMessage(skype, "Hi");
-message.setMessage("");
-message.updateEdit(skype);
+message.editMessage("");
 ```
 ## Formatting messages
 The "Chat" class is a utilities class for formatting. To format "hi" in bold, you can do "Chat.bold("hi")", which will return "hi" with the html Skype tags. If you wanted "hi" to be in bold and blink, you can do "Chat.bold(Chat.blink("hi"))".
