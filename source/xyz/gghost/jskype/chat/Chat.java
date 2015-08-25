@@ -82,4 +82,14 @@ public class Chat {
     public static String emoji(String emoji){
         return "<ss type=\""+ emoji.replace("(", "").replace(")", "") + "\">"+ emoji + "</ss>";
     }
+
+    public static String decodeText(String text){
+        String endText = text;
+        endText = StringEscapeUtils.unescapeHtml3(endText);
+        endText = StringEscapeUtils.unescapeHtml3(endText);
+        endText = StringEscapeUtils.unescapeXml(endText); //skype is stupid
+        endText = StringEscapeUtils.unescapeJson(endText); //not really needed
+        return endText;
+    }
+
 }

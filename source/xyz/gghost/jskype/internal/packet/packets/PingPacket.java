@@ -18,10 +18,10 @@ public class PingPacket {
         ping.setUrl("https://web.skype.com/api/v1/session-ping");
         ping.setData("sessionId=" + api.getUuid().toString());
         ping.setIsForm(true);
-        String data = ping.makeRequest(api.getUser());
+        String data = ping.makeRequest(api.getSkype());
         if (data == null || data.equals("---")) {
             System.out.println("Skype login expired... Reconnecting");
-            api.getUser().relog();
+            api.getSkype().relog();
             api.getPoller().prepare();
         }
 

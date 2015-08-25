@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class BasePacket {
@@ -97,32 +98,29 @@ public class BasePacket {
      *
      * @return
      */
-    public HttpURLConnection simpleRequest() {
+    public HttpURLConnection simpleRequest(LocalAccount usr) {
         try {
-            URL obj = new URL(url);
-            con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod((type == RequestType.GET ? "GET" : (type == RequestType.POST ? "POST" : (type == RequestType.PUT ? "PUT" : (type == RequestType.DELETE ? "DELETE" : "OPTIONS")))));
 
-            con.setRequestProperty("Content-Type", isForm ? "application/x-www-form-urlencoded" : "application/json");
-            con.setRequestProperty("Content-Length", Integer.toString(data.getBytes().length));
-            con.setRequestProperty("Content-Language", "en-US");
-            con.setRequestProperty("User-Agent", "JavaSkypeProject");
-            con.setRequestProperty("cookie", api.cookies);
-            con.setUseCaches(false);
-            con.setDoInput(true);
-            con.setDoOutput(true);
+                URL obj = new URL(url);
+                con = (HttpURLConnection) obj.openConnection();
+                con.setRequestMethod((type == RequestType.GET ? "GET" : (type == RequestType.POST ? "POST" : (type == RequestType.PUT ? "PUT" : (type == RequestType.DELETE ? "DELETE" : "OPTIONS")))));
 
-            for (Header s : headers) {
-                con.setRequestProperty(s.getType(), s.getData());
-            }
-
-            if (!(data.getBytes().length == 0)) {
-                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                wr.writeBytes(data);
-                wr.flush();
-                wr.close();
-            }
-            return con;
+                con.setRequestProperty("Content-Type", isForm ? "application/x-www-form-urlencoded" : "application/json");
+                con.setRequestProperty("Content-Length", Integer.toString(data.getBytes().length));
+                //con.setRequestProperty("User-Agent", "JavaSkypeProject");
+                con.setRequestProperty("Cookie", api.cookies);
+                con.setDoOutput(true);
+                addLogin(usr);
+                for (Header s : headers) {
+                    con.addRequestProperty(s.getType(), s.getData());
+                }
+                if (!(data.getBytes().length == 0)) {
+                    DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                    wr.write(data.getBytes());
+                    wr.flush();
+                    wr.close();
+                }
+                return con;
         } catch (Exception e) {
             System.out.println("================================================");
             System.out.println("========Unable to request  the skype api========");

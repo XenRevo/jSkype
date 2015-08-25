@@ -31,8 +31,8 @@ public class LocalAccount extends User {
     @Getter private String password;
     @Getter @Setter private String xSkypeToken;
     @Getter @Setter private String regToken;
-    @Setter private ArrayList<User> contactCache;
-    @Setter private ArrayList<Group> groupCache = new ArrayList<Group>();
+    @Setter private ArrayList<User> contactCache = new ArrayList<User>();
+    @Setter private ArrayList<Conversation> recentCache = new ArrayList<Conversation>();
 
     public LocalAccount(String username, String password, SkypeAPI api) {
         this.username = username;
@@ -54,15 +54,32 @@ public class LocalAccount extends User {
         System.out.println("Logging in");
         relog();
         System.out.println("Getting user data");
+        System.out.println("Getting contacts");
         try {
             contactCache = new GetContactsPacket(api, this).getContacts();
         } catch (Exception e) {
             System.out.println("Failed to get your entire contacts due to a bad account. Try an alt?");
         }
+        System.out.println("Getting groups, non-contact conversations, group information");
         try {
-            groupCache = new GetConvos(api, this).getRecentGroups();
+            recentCache = new GetConvos(api, this).getRecentChats();
         } catch (AccountUnusableForRecentException e) {
             System.out.println("Failed to get recent contacts due to a bad account. Try an alt?");
+        }
+        System.out.println("Initialized!");
+    }
+    /** Login */
+    public void relog() {
+
+        try {
+            new SkypeAuthentication().login(api, this);
+        } catch (InvalidCredentialsException e) {
+            System.out.println("Bad username + password");
+            System.exit(-1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to login!");
+            System.exit(-1);
         }
     }
 
@@ -71,8 +88,8 @@ public class LocalAccount extends User {
         boolean done = false;
         while(!done) {
             try {
-                for (Group group : getGroups()) {
-                    if (group.getChatId().equals(id))
+                for (Conversation group : recentCache) {
+                    if ((!group.isUserChat()) && group.getChatId().equals(id))
                         return group;
                 }
                 done = true;
@@ -86,9 +103,14 @@ public class LocalAccount extends User {
         }
         return null;
     }
+    /** This method will get as much data as possible about a user without contacting to skype */
+    public User getSimpleUser(String username){
+        User user = getContact(username);
+        return user != null ? user : new User(username);
+    }
     /** get user by username */
     public User getUserByUsername(String username){
-        User user = api.getUser().getContact(username);
+        User user = getContact(username);
         return user != null ? user : new GetProfilePacket(api, this).getUser(username);
     }
     /** Get contact by username*/
@@ -112,45 +134,11 @@ public class LocalAccount extends User {
         return null;
     }
 
-    /** Gets all chats - groups and contacts... This is NOT the same as #getRecent. This gets known contacts and known groups and recent gets all convos
+    /** Now same as #getRecent
      * */
+    @Deprecated
     public ArrayList<Conversation> getAllChats(){
-        ArrayList<Conversation> chats = new ArrayList<Conversation>();
-        boolean done = false;
-        while(!done) {
-            try {
-                for (Group group : getGroups()){
-                    chats.add(new Conversation(api, group.getChatId(), true));
-                }
-                for (User user : getContacts()){
-                    chats.add(new Conversation(api, user.getUsername(), false));
-                }
-                done = true;
-            }catch(ConcurrentModificationException e){
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-                chats = new ArrayList<Conversation>();
-            }
-        }
-        return chats;
-    }
-
-    /** Login */
-    public void relog() {
-
-        try {
-            new SkypeAuthentication().login(api, this);
-        } catch (InvalidCredentialsException e) {
-            System.out.println("Bad username + password");
-            System.exit(-1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Failed to login!");
-            System.exit(-1);
-        }
+        return recentCache;
     }
 
     /**
@@ -164,17 +152,18 @@ public class LocalAccount extends User {
      */
     public ArrayList<Conversation> getRecent(){
         try {
-            return new GetConvos(api, this).getRecentChats();
+            return recentCache;
         }catch(Exception e){
             return null;
         }
     }
     /**
-     * Get the known groups ("recent conversations" and active chats). This gets groups only - not contacts
+     * Get the known groups ("recent conversations" and active chats).
      */
-    public ArrayList<Group> getGroups() {
-        return groupCache;
+    public ArrayList<Conversation> getConversations() {
+        return recentCache;
     }
+
     /**
      * Gets pending contact requests
      */
@@ -199,4 +188,7 @@ public class LocalAccount extends User {
     public void sendContactRequest(String username, String greeting) {
         new GetPendingContactsPacket(api, this).sendRequest(username, greeting);
     }
+    /**
+     * Skype db lookup / search
+     */
 }

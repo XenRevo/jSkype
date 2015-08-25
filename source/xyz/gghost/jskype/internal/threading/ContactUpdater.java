@@ -17,9 +17,6 @@ public class ContactUpdater extends Thread {
 
     private LocalAccount acc;
     private SkypeAPI api;
-    private boolean groupFail = false;
-    private int failed = 0;
-    ArrayList<Group> groups = null;
 
     public ContactUpdater(LocalAccount acc, SkypeAPI api) {
         this.acc = acc;

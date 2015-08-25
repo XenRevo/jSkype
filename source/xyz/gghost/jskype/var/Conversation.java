@@ -23,8 +23,12 @@ public class Conversation extends Group{
     public Conversation(SkypeAPI api, String id, boolean isGroup) {
 
         super(id, "", null);
-        if (isGroup){
-            this.setConnectedClients(api.getUser().getGroupById(id).getConnectedClients());
+        try {
+            if (isGroup) {
+                this.setConnectedClients(api.getSkype().getGroupById(id).getConnectedClients());
+            }
+        }catch(NullPointerException e){
+            //jSkype is still loading
         }
         this.userChat = !isGroup;
         this.id = id;
@@ -39,27 +43,27 @@ public class Conversation extends Group{
     }
     public Message sendMessage(SkypeAPI api, String text) {
         if (!userChat) {
-            return new SendMessagePacket(api, api.getUser()).sendMessage(new Group(id, "", null), new Message(text));
+            return new SendMessagePacket(api, api.getSkype()).sendMessage(new Group(id, "", null), new Message(text));
         } else {
-            return new SendMessagePacket(api, api.getUser()).sendMessage(id, new Message(text));
+            return new SendMessagePacket(api, api.getSkype()).sendMessage(id, new Message(text));
         }
     }
     public Message sendMessage(SkypeAPI api, Message text) {
         if (!userChat) {
-            return new SendMessagePacket(api, api.getUser()).sendMessage(new Group(id, "", null), text);
+            return new SendMessagePacket(api, api.getSkype()).sendMessage(new Group(id, "", null), text);
         } else {
-            return new SendMessagePacket(api, api.getUser()).sendMessage(id, text);
+            return new SendMessagePacket(api, api.getSkype()).sendMessage(id, text);
         }
     }
     /** If chat is a group, get group or return null*/
     public Group getGroup() {
         if(forcedGroup)
             return forcedGroupGroup;
-        return api.getUser().getGroupById(id);
+        return api.getSkype().getGroupById(id);
     }
     /** If chat is a user, get user or return null*/
     public User getUser() {
-        for (User user : api.getUser().getContacts()) {
+        for (User user : api.getSkype().getContacts()) {
             if (user.getUsername().equalsIgnoreCase(id))
                 return user;
         }
@@ -70,7 +74,7 @@ public class Conversation extends Group{
         if(!userChat){
             return getGroup().getUser(username);
         }
-        GroupUser user = new GroupUser(api.getUser().getUserByUsername(username));
+        GroupUser user = new GroupUser(api.getSkype().getUserByUsername(username));
         user.setRole(Role.ADMIN);
         return user;
     }
@@ -80,8 +84,8 @@ public class Conversation extends Group{
             return getGroup().getConnectedClients();
         }else{
             ArrayList<GroupUser> users = new ArrayList<GroupUser>();
-            users.add(new GroupUser(api.getUser().getContact(id)));
-            users.add(new GroupUser(api.getUser()));
+            users.add(new GroupUser(api.getSkype().getContact(id)));
+            users.add(new GroupUser(api.getSkype()));
             return users;
         }
     }

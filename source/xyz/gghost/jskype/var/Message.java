@@ -23,12 +23,20 @@ public class Message {
 
 
     /**
+     * Edit the message
+     */
+    public Message editMessage(SkypeAPI api, String message){
+        setMessage(message);
+        edited = true;
+        return new SendMessagePacket(api, api.getSkype()).editMessage(this);
+    }
+    /**
      * Once setMessage has edited the message locally, this will update the edit on skypes servers
      * @param api
      * @return
      */
     public Message updateEdit(SkypeAPI api) {
         edited = true;
-        return new SendMessagePacket(api, api.getUser()).editMessage(this);
+        return new SendMessagePacket(api, api.getSkype()).editMessage(this);
     }
 }

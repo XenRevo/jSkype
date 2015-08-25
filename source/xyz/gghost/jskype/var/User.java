@@ -23,13 +23,13 @@ public class User {
      * Send a message to a person
      */
     public Message sendMessage(SkypeAPI api, String message) {
-        return new SendMessagePacket(api, api.getUser()).sendMessage(this.getUsername(), new Message(message));
+        return new SendMessagePacket(api, api.getSkype()).sendMessage(this.getUsername(), new Message(message));
     }
     /**
      * Send a message to a person
      */
     public Message sendMessage(SkypeAPI api, Message message) {
-        return new SendMessagePacket(api, api.getUser()).sendMessage(this.getUsername(), message);
+        return new SendMessagePacket(api, api.getSkype()).sendMessage(this.getUsername(), message);
 
     }
 }

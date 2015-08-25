@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.api.events.*;
+import xyz.gghost.jskype.chat.Chat;
 import xyz.gghost.jskype.internal.packet.BasePacket;
 import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.internal.packet.packets.GetConvos;
@@ -53,20 +54,20 @@ public class Poller extends Thread {
             try {
                 if (!(object.isNull("type") && object.isNull("resourceType"))) {
                     Conversation chat = new Conversation(api, "", false);
-                    try {
+
+                    if (object.getString("resourceLink").contains("conversations/19:") || object.getString("resourceLink").contains("8:")) {
                         if (!object.getString("resourceLink").contains("8:")) {
                             String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
-                            Group group = api.getUser().getGroupById(idShort);
                             addGroupToRecent(object);
+                            Group group = usr.getGroupById(idShort);
                             chat.setId(group.getChatId());
                             chat.setUserChat(false);
                         } else {
                             chat.setId(object.getString("resourceLink").split("/8:")[1].split("/")[0]);
                             chat.setUserChat(true);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        //invalid data - don't need it
+                    } else {
+                        System.out.println("Non-group data received from skype. This is ignorable.");
                     }
 
                     //thread update
@@ -79,7 +80,7 @@ public class Poller extends Thread {
                         ArrayList<String> newUsers = new ArrayList<String>();
 
                         String shortId = object.getString("resourceLink").split("19:")[1].split("@")[0];
-                        for (Group groups : usr.getGroups()) {
+                        for (Conversation groups : usr.getConversations()) {
                             if (groups.getChatId().equals(shortId)) {
                                 for (GroupUser usr : groups.getConnectedClients()) {
                                     oldUsers.add(usr.getAccount().getUsername().toLowerCase());
@@ -89,7 +90,6 @@ public class Poller extends Thread {
                             }
                         }
                         if (oldGroup != null) {
-
                             JSONObject resource = object.getJSONObject("resource");
                             String topic = oldGroup.getTopic();
                             String picture = resource.getJSONObject("properties").isNull("picture") ? "" : resource.getJSONObject("properties").getString("picture");
@@ -103,7 +103,7 @@ public class Poller extends Thread {
                                 newUsers.add(user.getString("id").replace("8:", ""));
                                 try {
                                     Role role = Role.USER;
-                                    User ussr = new User(user.getString("id").replace("8:", ""));
+                                    User ussr = usr.getSimpleUser(user.getString("id").replace("8:", ""));
                                     if (!user.getString("role").equals("User"))
                                         role = Role.ADMIN;
                                     GroupUser gu = new GroupUser(ussr);
@@ -123,9 +123,11 @@ public class Poller extends Thread {
                                 api.getEventManager().executeEvent(new UserJoinEvent(group, new GetProfilePacket(api, usr).getUser(news)));
                             }
 
-                            usr.getGroups().remove(oldGroup);
-                            usr.getGroups().add(group);
-
+                            usr.getConversations().remove(oldGroup);
+                            Conversation newConvo = new Conversation(api, group.getChatId(), true);
+                            newConvo.setForcedGroupGroup(group);
+                            newConvo.setForcedGroup(true);
+                            usr.getConversations().add(newConvo);
                         } else {
                             //added to the group
                         }
@@ -137,10 +139,12 @@ public class Poller extends Thread {
 
                     //resource json
                     JSONObject resource = object.getJSONObject("resource");
+                    boolean isMessage = (!resource.isNull("messagetype") && resource.getString("messagetype").equals("ThreadActivity/TopicUpdate"));
 
                     //Get topic update
                     if (!resource.isNull("messagetype") && resource.getString("messagetype").equals("ThreadActivity/TopicUpdate")) {
                         String topic = resource.getString("content").split("<value>")[1].split("<\\/value>")[0];
+                        topic = Chat.decodeText(topic);
                         String username = resource.getString("content").split("<initiator>8:")[1].split("<\\/initiator>")[0];
                         String oldTopic = usr.getGroupById(chat.getId()).getTopic();
                         User user = getUser(username, chat);
@@ -160,9 +164,7 @@ public class Poller extends Thread {
 
                         Message message = new Message();
                         User user = getUser(resource.getString("from").split("8:")[1], chat);
-                        String content = resource.getString("content");
-                        content = StringEscapeUtils.unescapeHtml4(content);
-                        content = StringEscapeUtils.unescapeHtml3(content);
+                        String content = Chat.decodeText(resource.getString("content"));
                         if (!resource.isNull("clientmessageid"))
                             message.setId(resource.getString("clientmessageid"));
                         if (!resource.isNull("skypeeditedid")) {
@@ -198,13 +200,9 @@ public class Poller extends Thread {
                             return;
                         }
                     }
-
-
                 }
 
-            } catch (ArrayIndexOutOfBoundsException e) {
-                //Normal - ignore
-            } catch (Exception e) {
+            }catch (Exception e) {
                 System.out.println("Failed to process data from skype.\nMessage: " + object + "\nError: " + e.getMessage());
                 e.printStackTrace();
             }
@@ -215,7 +213,7 @@ public class Poller extends Thread {
     private User getUser(String username, Conversation chat) {
         User user = null;
         //get user from contacts
-        user = api.getUser().getContact(username);
+        user = usr.getContact(username);
         //get user from connected clients
         if (user == null) {
             try {
@@ -223,9 +221,7 @@ public class Poller extends Thread {
                     if (users.getAccount().getUsername().equals(username))
                         user = users.getAccount();
                 }
-            } catch (NullPointerException e) {
-                //Unknown user and/or typing bug
-            }
+            } catch (NullPointerException e) {}
         }
         //If failed to get user - get the users info by calling skypes api
         if (user == null)
@@ -234,53 +230,66 @@ public class Poller extends Thread {
     }
 
     private void addGroupToRecent(JSONObject object) {
-        String idLong = object.getString("resourceLink").split("conversations/")[1].split("/")[0];
-        String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
-        //get if already exists
-        for (Group group : api.getUser().getGroups()) {
-            if (group.getChatId().equals(idShort)) {
+        try {
+            String idLong = object.getString("resourceLink").split("conversations/")[1].split("/")[0];
+            String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
+            //get if already exists
+            for (Group group : usr.getConversations()) {
+                if (group.getChatId().equals(idShort)) {
+                    return;
+                }
+            }
+            //get info about group
+            BasePacket packett = new BasePacket(api);
+
+            packett.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
+            packett.setType(RequestType.GET);
+            String data = packett.makeRequest(usr);
+
+            if (data == null)
                 return;
+
+            JSONObject recent = new JSONObject(data);
+
+            Group group = new Group(idShort, "", null);
+            group = new GetConvos(api, usr).setTopicAndPic(idLong, group);
+            ArrayList<GroupUser> groupMembers = new ArrayList<GroupUser>();
+
+            BasePacket members = new BasePacket(api);
+            members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
+            members.setType(RequestType.GET);
+
+            String dataa = members.makeRequest(usr);
+
+            if (dataa == null)
+                return;
+
+            JSONArray membersArray = new JSONObject(dataa).getJSONArray("members");
+            for (int ii = 0; ii < membersArray.length(); ii++) {
+                JSONObject member = membersArray.getJSONObject(ii);
+                try {
+                    Role role = Role.USER;
+                    User ussr = usr.getSimpleUser(member.getString("id").split(":")[1]);
+                    if (!member.getString("role").equals("User"))
+                        role = Role.ADMIN;
+
+                    GroupUser gu = new GroupUser(ussr);
+                    gu.setRole(role);
+                    groupMembers.add(gu);
+
+                } catch (Exception e) {
+                    continue;
+                }
             }
+            group.setConnectedClients(groupMembers);
+
+            Conversation convo = new Conversation(api, group.getChatId(), true);
+            convo.setForcedGroup(true);
+            convo.setForcedGroupGroup(group);
+            usr.getConversations().add(convo);
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        //get info about group
-        BasePacket packett = new BasePacket(api);
-        packett.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
-        packett.setType(RequestType.GET);
-        String data = packett.makeRequest(usr);
-        if (data == null)
-            return;
-        JSONObject recent = new JSONObject(data);
-
-        Group group = new Group(idShort, "", null);
-        group = new GetConvos(api, usr).setTopicAndPic(idLong, group);
-        BasePacket members = new BasePacket(api);
-        members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
-        members.setType(RequestType.GET);
-        ArrayList<GroupUser> groupMembers = new ArrayList<GroupUser>();
-        String dataa = members.makeRequest(usr);
-        if (dataa == null)
-            return;
-        JSONArray membersArray = new JSONObject(dataa).getJSONArray("members");
-        for (int ii = 0; ii < membersArray.length(); ii++) {
-            JSONObject member = membersArray.getJSONObject(ii);
-
-            try {
-                Role role = Role.USER;
-                User ussr = new User(member.getString("id").split(":")[1]);
-                if (!member.getString("role").equals("User"))
-                    role = Role.ADMIN;
-
-                GroupUser gu = new GroupUser(ussr);
-                gu.setRole(role);
-                groupMembers.add(gu);
-
-            } catch (Exception e) {
-                continue;
-            }
-        }
-        group.setConnectedClients(groupMembers);
-        api.getUser().getGroups().add(group);
-
     }
 
 
@@ -293,8 +302,7 @@ public class Poller extends Thread {
             try {
                 Thread.sleep(1750);
                 prepare();
-            } catch (InterruptedException e) {
-            }
+            } catch (InterruptedException e) {}
         }
         save();
     }
@@ -334,6 +342,7 @@ public class Poller extends Thread {
             //I have no fucking clue how to handle this. Crash application may be feasible but then after two days it might crash for no reason :/
             System.out.println("Null on location getter");
             System.exit(-1);
+
         }
         return packet.getCon().getHeaderField("Location");
     }
