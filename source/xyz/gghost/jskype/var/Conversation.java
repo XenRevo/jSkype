@@ -22,7 +22,7 @@ public class Conversation extends Group{
 
     public Conversation(SkypeAPI api, String id, boolean isGroup) {
 
-        super(id, "", null);
+        super("", id, null);
         try {
             if (isGroup) {
                 this.setConnectedClients(api.getSkype().getGroupById(id).getConnectedClients());
