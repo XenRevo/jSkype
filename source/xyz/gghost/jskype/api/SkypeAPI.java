@@ -61,16 +61,17 @@ public class SkypeAPI {
             init();
         }
     }
+
     private void init() {
+        //ORDER IS FOR A REASON
         pinger = new Ping(this);
         pinger.start();
-        poller = new Poller(this, skype);
-        poller.start();
-        contactThread = new PendingContactEventThread(this.skype, this);
-        contactThread.start();
-
         contactUpdater = new ContactUpdater(this.skype, this);
         contactUpdater.start();
+        contactThread = new PendingContactEventThread(this.skype, this);
+        contactThread.start();
+        poller = new Poller(this, skype);
+        poller.start();
         convoUpdater = new ConvoUpdater(this.skype, this);
         convoUpdater.start();
 

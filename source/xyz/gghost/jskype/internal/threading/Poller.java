@@ -48,7 +48,7 @@ public class Poller extends Thread {
 
         JSONObject messagesAsJson = new JSONObject(data);
         JSONArray json = messagesAsJson.getJSONArray("eventMessages");
-
+        int counta = 0;
         for (int i = 0; i < json.length(); i++) {
             JSONObject object = json.getJSONObject(i);
             try {
@@ -162,10 +162,17 @@ public class Poller extends Thread {
                     //Get message
                     if (!resource.isNull("messagetype") && (resource.getString("messagetype").equals("RichText") || resource.getString("messagetype").equals("Text"))) {
 
+                        counta ++;
+
                         Message message = new Message();
                         User user = getUser(resource.getString("from").split("8:")[1], chat);
-                        String content = Chat.decodeText(resource.getString("content"));
-                        if (!resource.isNull("clientmessageid"))
+
+
+                        String content = "";
+                        if(!resource.isNull("content"))
+                            content = Chat.decodeText(resource.getString("content"));
+
+                            if (!resource.isNull("clientmessageid"))
                             message.setId(resource.getString("clientmessageid"));
                         if (!resource.isNull("skypeeditedid")) {
                             content = content.replaceFirst("Edited previous message: ", "").split("<e_m")[0];
@@ -190,6 +197,7 @@ public class Poller extends Thread {
                         content = StringEscapeUtils.unescapeHtml4(content);
                         content = StringEscapeUtils.unescapeHtml3(content);
                         if (content.contains("To view this shared photo, go to: <a href=\"https://api.asm.skype.com/s/i?")) {
+
                             String id = content.split("To view this shared photo, go to: <a href=\"https://api.asm.skype.com/s/i?")[1].split("\">")[0];
                             String url = ("https://api.asm.skype.com/v1/objects/" + id + "/views/imgo").replace("objects/?", "objects/");
                             api.getEventManager().executeEvent(new UserImagePingEvent(chat, user, url));
@@ -203,7 +211,7 @@ public class Poller extends Thread {
                 }
 
             }catch (Exception e) {
-                System.out.println("Failed to process data from skype.\nMessage: " + object + "\nError: " + e.getMessage());
+                System.out.println("Failed to process data from skype.\nMessage: "  + object + "Data: " + data + "\nError: " + e.getMessage());
                 e.printStackTrace();
             }
         }

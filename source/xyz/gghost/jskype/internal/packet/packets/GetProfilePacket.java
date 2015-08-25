@@ -93,13 +93,14 @@ public class GetProfilePacket {
             JSONArray jsonObject = new JSONArray(data);
             int count = 0; //offset for displayname grabber
             for (int ii = 0; ii < jsonObject.length(); ii++) {
-                count ++; // ++ 1
                 JSONObject jData = jsonObject.getJSONObject(ii);
+                count ++; // ++ 1
 
                 User user = new User(jData.getString("username"));
 
+
                 user.setPictureUrl(jData.isNull("avatarUrl") ? "https://swx.cdn.skype.com/assets/v/0.0.213/images/avatars/default-avatar-group_46.png" : jData.getString("avatarUrl"));
-                user.setDisplayName(jData.isNull("displayname") ? (jData.isNull("firstname") ? jData.getString("id") : getDisplayName(data, (count))) : jData.getString("displayname"));
+                user.setDisplayName(jData.isNull("displayname") ? (jData.isNull("firstname") ? jData.getString("username") : getDisplayName(data, (count))) : jData.getString("displayname"));
                 user.setMood(jData.isNull("richMood") ? (jData.isNull("mood") ? "" : jData.getString("mood")) : jData.getString("richMood"));
                 user.setMood(Chat.decodeText(user.getMood()));
 
@@ -119,7 +120,7 @@ public class GetProfilePacket {
         return user;
     }
     public String getDisplayName(String data, int count){
-        return data.split("firstname\":\"")[count].split("\",\"")[0];
+        return (data.split("firstname\":")[count].split("\",\"")[0]).replace("\"", "");
     }
     public String getDisplayName(String data){
         return data.split("firstname\":\"")[1].split("\",\"")[0];
