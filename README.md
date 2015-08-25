@@ -121,7 +121,7 @@ public class CommandTest extends Command{
     }
   
     @Override 
-    public void called(Message msg, Group group, String args){ 
+    public void called(Message msg, Conversation group, String args){ 
     //msg = orignal message
     //group = group the message was received from 
     //args = everything after the comandname (prefix + command)
