@@ -56,13 +56,13 @@ User related (contact requests, active groups, contacts, login, etc): LocalAccou
 #Sending chat messages
 Sending a message to all contacts example:
 ```java
-for (User user : skype.getUser().getContacts()){
+for (User user : skype.getSkype().getContacts()){
   user.sendMessage(skype, "Hi");
 }
 ```
 Sending a message to all recent groups example:
 ```java
-for (Conversation group : skype.getUser().getRecent()){
+for (Conversation group : skype.getSkype().getRecent()){
   group.sendMessage(skype, "Hi");
 }
 ```
