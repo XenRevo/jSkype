@@ -43,6 +43,7 @@ public class Conversation extends  Group{
         }
         return "";
     }
+    /** Send an image (url - not a gif ) to a chat*/
     public Message sendImageToChat(SkypeAPI api, String URL){
         if (!userChat) {
             return new SendMessagePacket(api, api.getSkype()).sendPing(getGroup(), new Message("hi"), new PingPrepPacket(api).urlToId(URL, id));
@@ -50,6 +51,7 @@ public class Conversation extends  Group{
             return new SendMessagePacket(api, api.getSkype()).sendPing(id, new Message("hi"), new PingPrepPacket(api).urlToId(URL, id));
         }
     }
+    /** send message to the chat*/
     public Message sendMessage(SkypeAPI api, String text) {
         if (!userChat) {
             return new SendMessagePacket(api, api.getSkype()).sendMessage(new Group(id, "", null), new Message(text));
@@ -57,6 +59,7 @@ public class Conversation extends  Group{
             return new SendMessagePacket(api, api.getSkype()).sendMessage(id, new Message(text));
         }
     }
+    /** send message to the chat*/
     public Message sendMessage(SkypeAPI api, Message text) {
         if (!userChat) {
             return new SendMessagePacket(api, api.getSkype()).sendMessage(new Group(id, "", null), text);
@@ -64,6 +67,7 @@ public class Conversation extends  Group{
             return new SendMessagePacket(api, api.getSkype()).sendMessage(id, text);
         }
     }
+    /** Do not use*/
     public void setForcedGroupGroup(Group forcedGroupGroup){
         this.forcedGroupGroup = forcedGroupGroup;
     }
@@ -123,12 +127,14 @@ public class Conversation extends  Group{
         if (!userChat)
             getGroup().add(api, username);
     }
+    /** Checks if a string is admin*/
     public boolean isAdmin(String user){
         if (!userChat)
             return getGroup().isAdmin(user);
         return true;
 
     }
+    /** Checks if LocalUser or a User is admin*/
     public boolean isAdmin(User user){
         if (!userChat)
             return getGroup().isAdmin(user);
