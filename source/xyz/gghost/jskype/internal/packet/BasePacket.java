@@ -16,13 +16,14 @@ import java.util.ArrayList;
 public class BasePacket {
     protected SkypeAPI api;
     //TODO: Recode -> this is from an older version of jSkype
-    @Getter @Setter private String data = "";
-    @Getter @Setter private String url = "";
-    @Getter @Setter private RequestType type = null;
-    @Getter @Setter private Boolean isForm = false;
-    @Getter private ArrayList<Header> headers = new ArrayList<Header>();
-    @Getter private HttpURLConnection con;
-
+    @Getter @Setter protected String data = "";
+    @Getter @Setter protected String url = "";
+    @Getter @Setter protected RequestType type = null;
+    @Getter @Setter protected Boolean isForm = false;
+    @Getter protected ArrayList<Header> headers = new ArrayList<Header>();
+    @Getter protected HttpURLConnection con;
+    @Getter @Setter protected boolean sendLoginHeaders = true;
+    @Getter @Setter protected boolean file = false;
     public BasePacket(SkypeAPI api) {
         this.api = api;
     }
@@ -31,7 +32,7 @@ public class BasePacket {
     private void addLogin(LocalAccount usr) {
         addHeader(new Header("RegistrationToken", usr.getRegToken()));
         addHeader(new Header("X-Skypetoken", usr.getXSkypeToken()));
-    }
+       }
 
     public void addHeader(Header header) {
         headers.add(header);
@@ -43,12 +44,13 @@ public class BasePacket {
             con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod((type == RequestType.GET ? "GET" : (type == RequestType.POST ? "POST" : (type == RequestType.PUT ? "PUT" : (type == RequestType.DELETE ? "DELETE" : "OPTIONS")))));
 
-            con.setRequestProperty("Content-Type", isForm ? "application/x-www-form-urlencoded" : "application/json");
+            con.setRequestProperty("Content-Type", isForm ? "application/x-www-form-urlencoded" : (file ? "application/octet-stream" : "application/json; charset=utf-8"));
             con.setRequestProperty("Content-Length", Integer.toString(data.getBytes().length));
-            //con.setRequestProperty("User-Agent", "JavaSkypeProject");
+            con.setRequestProperty("User-Agent", "0/7.7.0.103// libhttpX.X");
             con.setRequestProperty("Cookie", api.cookies);
             con.setDoOutput(true);
-            addLogin(usr);
+            if (sendLoginHeaders )
+                addLogin(usr);
             for (Header s : headers) {
                 con.addRequestProperty(s.getType(), s.getData());
             }
@@ -73,6 +75,8 @@ public class BasePacket {
                 System.out.println("\n\nBad login...");
                 System.out.println(this.url + " returned 401. \nHave you been running jSkype for more than 2 days?\nWithin 4 seconds the ping-er should relog you in.\n\n");
                 return "---";
+            } else if (responseCode == 204) {
+                return "";
             } else {
                 //GetProfile will handle the debugging info
                 if(url.equals("https://api.skype.com/users/self/contacts/profiles"))

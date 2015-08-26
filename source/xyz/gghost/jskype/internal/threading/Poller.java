@@ -59,8 +59,8 @@ public class Poller extends Thread {
                         if (!object.getString("resourceLink").contains("8:")) {
                             String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
                             addGroupToRecent(object);
-                            Group group = usr.getGroupById(idShort);
-                            chat.setId(group.getChatId());
+                            Conversation group = usr.getGroupById(idShort);
+                            chat.setId(group.getId());
                             chat.setUserChat(false);
                         } else {
                             chat.setId(object.getString("resourceLink").split("/8:")[1].split("/")[0]);
@@ -72,7 +72,7 @@ public class Poller extends Thread {
 
                     //thread update
                     if (object.getString("resourceType").equals("ThreadUpdate")) {
-                        Group oldGroup = null;
+                        Conversation oldGroup = null;
                         ArrayList<GroupUser> oldos = new ArrayList<GroupUser>();
                         ArrayList<String> oldUsers2 = new ArrayList<String>();
                         ArrayList<String> oldUsers = new ArrayList<String>();
@@ -81,7 +81,7 @@ public class Poller extends Thread {
 
                         String shortId = object.getString("resourceLink").split("19:")[1].split("@")[0];
                         for (Conversation groups : usr.getConversations()) {
-                            if (groups.getChatId().equals(shortId)) {
+                            if (groups.getId().equals(shortId)) {
                                 for (GroupUser usr : groups.getConnectedClients()) {
                                     oldUsers.add(usr.getAccount().getUsername().toLowerCase());
                                     oldUsers2.add(usr.getAccount().getUsername().toLowerCase());
@@ -174,11 +174,13 @@ public class Poller extends Thread {
 
                             if (!resource.isNull("clientmessageid"))
                             message.setId(resource.getString("clientmessageid"));
+
                         if (!resource.isNull("skypeeditedid")) {
                             content = content.replaceFirst("Edited previous message: ", "").split("<e_m")[0];
                             message.setId(resource.getString("skypeeditedid"));
                             message.setEdited(true);
                         }
+
                         message.setSender(user);
                         message.setTime(resource.getString("originalarrivaltime"));
                         message.setUpdateUrl(object.getString("resourceLink").split("/messages/")[0] + "/messages");
@@ -242,8 +244,8 @@ public class Poller extends Thread {
             String idLong = object.getString("resourceLink").split("conversations/")[1].split("/")[0];
             String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
             //get if already exists
-            for (Group group : usr.getConversations()) {
-                if (group.getChatId().equals(idShort)) {
+            for (Conversation group : usr.getConversations()) {
+                if (group.getId().equals(idShort)) {
                     return;
                 }
             }

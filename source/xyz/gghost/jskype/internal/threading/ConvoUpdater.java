@@ -39,7 +39,7 @@ public class ConvoUpdater extends Thread{
                         for (Conversation newGroup : newList) {
                             boolean flag = true;
                             for (Conversation oldGr : acc.getConversations()) {
-                                if (oldGr.getChatId().equals(newGroup.getChatId()))
+                                if (oldGr.getId().equals(newGroup.getId()))
                                     flag = false;
                             }
                             if (flag)

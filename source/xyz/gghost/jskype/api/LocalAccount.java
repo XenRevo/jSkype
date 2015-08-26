@@ -84,13 +84,14 @@ public class LocalAccount extends User {
     }
 
     /** Get group by short id (no 19: + @skype blah blah blah)*/
-    public Group getGroupById(String id){
+    public Conversation getGroupById(String id){
         boolean done = false;
         while(!done) {
             try {
                 for (Conversation group : recentCache) {
-                    if ((!group.isUserChat()) && group.getChatId().equals(id))
+                    if ((!group.isUserChat()) && group.getId().equals(id))
                         return group;
+
                 }
                 done = true;
             }catch(ConcurrentModificationException e){
