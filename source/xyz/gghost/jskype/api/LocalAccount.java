@@ -12,27 +12,37 @@ import xyz.gghost.jskype.internal.packet.packets.GetConvos;
 import xyz.gghost.jskype.internal.packet.packets.GetPendingContactsPacket;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
 import xyz.gghost.jskype.var.Conversation;
-import xyz.gghost.jskype.var.Group;
 import xyz.gghost.jskype.var.User;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 
 
-/**original
+/**
+ * original
  * This should be in xyz.gghost.jskype.var, but since it's used for most of the main methods, it's staying in the "root" package
  *
  * @author Ghost
  */
 public class LocalAccount extends User {
     private SkypeAPI api;
-    @Getter @Setter private String email;
-    @Getter @Setter private String username;
-    @Getter private String password;
-    @Getter @Setter private String xSkypeToken;
-    @Getter @Setter private String regToken;
-    @Setter private ArrayList<User> contactCache = new ArrayList<User>();
-    @Setter private ArrayList<Conversation> recentCache = new ArrayList<Conversation>();
+    @Getter
+    @Setter
+    private String email;
+    @Getter
+    @Setter
+    private String username;
+    @Getter
+    private String password;
+    @Getter
+    @Setter
+    private String xSkypeToken;
+    @Getter
+    @Setter
+    private String regToken;
+    @Setter
+    private ArrayList<User> contactCache = new ArrayList<User>();
+    @Setter
+    private ArrayList<Conversation> recentCache = new ArrayList<Conversation>();
 
     public LocalAccount(String username, String password, SkypeAPI api) {
         this.username = username;
@@ -68,7 +78,10 @@ public class LocalAccount extends User {
         }
         System.out.println("Initialized!");
     }
-    /** Login */
+
+    /**
+     * Login
+     */
     public void relog() {
 
         try {
@@ -83,7 +96,9 @@ public class LocalAccount extends User {
         }
     }
 
-    /** Get group by short id (no 19: + @skype blah blah blah)*/
+    /**
+     * Get group by short id (no 19: + @skype blah blah blah)
+     */
     public Conversation getGroupById(String id) {
 
         for (Conversation group : recentCache) {
@@ -92,32 +107,42 @@ public class LocalAccount extends User {
         }
         return null;
     }
-    /** This method will get as much data as possible about a user without contacting to skype */
-    public User getSimpleUser(String username){
+
+    /**
+     * This method will get as much data as possible about a user without contacting to skype
+     */
+    public User getSimpleUser(String username) {
         User user = getContact(username);
         return user != null ? user : new User(username);
     }
-    /** get user by username */
-    public User getUserByUsername(String username){
+
+    /**
+     * get user by username
+     */
+    public User getUserByUsername(String username) {
         User user = getContact(username);
         return user != null ? user : new GetProfilePacket(api, this).getUser(username);
     }
-    /** Get contact by username*/
-    public User getContact(String username){
+
+    /**
+     * Get contact by username
+     */
+    public User getContact(String username) {
 
 
-                for (User contact : getContacts()){
-                    if (contact.getUsername().equalsIgnoreCase(username))
-                        return contact;
-                }
+        for (User contact : getContacts()) {
+            if (contact.getUsername().equalsIgnoreCase(username))
+                return contact;
+        }
 
         return null;
     }
 
-    /** Now same as #getRecent
-     * */
+    /**
+     * Now same as #getRecent
+     */
     @Deprecated
-    public ArrayList<Conversation> getAllChats(){
+    public ArrayList<Conversation> getAllChats() {
         return recentCache;
     }
 
@@ -127,16 +152,18 @@ public class LocalAccount extends User {
     public ArrayList<User> getContacts() {
         return contactCache;
     }
+
     /**
      * Get recent chats - this includes contacts, none-contacts and groups
      */
-    public ArrayList<Conversation> getRecent(){
+    public ArrayList<Conversation> getRecent() {
         try {
             return recentCache;
-        }catch(Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
+
     /**
      * Get the known groups ("recent conversations" and active chats).
      */
@@ -150,18 +177,21 @@ public class LocalAccount extends User {
     public ArrayList<User> getContactRequests() throws BadResponseException, NoPendingContactsException {
         return new GetPendingContactsPacket(api, this).getPending();
     }
+
     /**
      * Attempts to accept a contact request - can take upto 2 minutes to appear as a contact
      */
     public void acceptContact(String username) {
         new GetPendingContactsPacket(api, this).acceptRequest(username);
     }
+
     /**
      * Attempts to send a contact request
      */
     public void sendContactRequest(String username) {
         new GetPendingContactsPacket(api, this).sendRequest(username);
     }
+
     /**
      * Attempts to send a contact request with a custom greeting
      */
