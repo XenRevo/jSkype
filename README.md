@@ -14,7 +14,8 @@ jSkype creation started when skype4web was released, however at the time I was m
 - Accept contact requests
 - Send contact requests
 - User information
-- 
+
+
 #Downloads, Javadocs, etc
 JavaDocs: http://gghost.xyz/JavaDocs/jSkype
 
