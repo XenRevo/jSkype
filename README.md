@@ -1,6 +1,20 @@
 # jSkype
 jSkype creation started when skype4web was released, however at the time I was making a private Skype client in Java, not an API. Samczsun, better known as super salter 9000 was creating an extremely limited api at the time of my client creation and still is today. In order to spare people from his limited api, I'm releasing jSkype.
 
+#Features
+- Ping chats with images
+- Get contact requests
+- Get recent groups
+- Get contacts
+- Add and remove users from groups
+- Integrated command handler for bots
+- User join/leave/chat/typing events
+- Send messages
+- Format messages
+- Accept contact requests
+- Send contact requests
+- User information
+- 
 #Downloads, Javadocs, etc
 JavaDocs: http://gghost.xyz/JavaDocs/jSkype
 
@@ -22,19 +36,6 @@ Dependency:
   <scope>compile</scope>
 </dependency>
 ```
-#Features
-- Ping chats with images
-- Get contact requests
-- Get recent groups
-- Get contacts
-- Add and remove users from groups
-- Integrated command handler for bots
-- User join/leave/chat/typing events
-- Send messages
-- Format messages
-- Accept contact requests
-- Send contact requests
-- User information
 
 #Creating a skype instance
 Before creating a Skype instance, you'll need to confirm whether or not you login with an email/pass or user/pass. If you login with a username and password, you can create a new instance of SkypeAPI with the arguments (username, password), otherwise people with email logins should pass (email, username, password)
