@@ -1,17 +1,14 @@
 package xyz.gghost.jskype.internal.packet.packets;
 
-import com.sun.xml.internal.ws.util.StreamUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.chat.Chat;
-import xyz.gghost.jskype.internal.packet.BasePacket;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.var.User;
 
-import java.io.ByteArrayOutputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 public class GetProfilePacket {
@@ -28,7 +25,7 @@ public class GetProfilePacket {
             User user = new User(username);
             return user;
         }
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
 
         packet.setType(RequestType.POST);
         packet.setUrl("https://api.skype.com/users/self/contacts/profiles");
@@ -68,7 +65,7 @@ public class GetProfilePacket {
     }
     public ArrayList<User> getUsers(ArrayList<String> usernames) {
         ArrayList<User> contacts = new ArrayList<User>();
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
 
         packet.setType(RequestType.POST);
         packet.setUrl("https://api.skype.com/users/self/contacts/profiles");

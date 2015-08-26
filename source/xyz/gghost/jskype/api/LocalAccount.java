@@ -84,23 +84,11 @@ public class LocalAccount extends User {
     }
 
     /** Get group by short id (no 19: + @skype blah blah blah)*/
-    public Conversation getGroupById(String id){
-        boolean done = false;
-        while(!done) {
-            try {
-                for (Conversation group : recentCache) {
-                    if ((!group.isUserChat()) && group.getId().equals(id))
-                        return group;
+    public Conversation getGroupById(String id) {
 
-                }
-                done = true;
-            }catch(ConcurrentModificationException e){
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            }
+        for (Conversation group : recentCache) {
+            if ((!group.isUserChat()) && group.getId().equals(id))
+                return group;
         }
         return null;
     }
@@ -116,22 +104,13 @@ public class LocalAccount extends User {
     }
     /** Get contact by username*/
     public User getContact(String username){
-        boolean done = false;
-        while(!done) {
-            try {
+
+
                 for (User contact : getContacts()){
                     if (contact.getUsername().equalsIgnoreCase(username))
                         return contact;
                 }
-                done = true;
-            }catch(ConcurrentModificationException e){
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
+
         return null;
     }
 

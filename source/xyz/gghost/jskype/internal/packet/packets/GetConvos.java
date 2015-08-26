@@ -6,7 +6,7 @@ import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.chat.Chat;
 import xyz.gghost.jskype.exception.AccountUnusableForRecentException;
-import xyz.gghost.jskype.internal.packet.BasePacket;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.var.*;
 
@@ -24,13 +24,13 @@ public class GetConvos {
     public ArrayList<Conversation> getRecentChats() throws AccountUnusableForRecentException {
         try {
             ArrayList<Conversation> groups = new ArrayList<Conversation>();
-            BasePacket options = new BasePacket(api);
+            PacketBuilder options = new PacketBuilder(api);
             options.setUrl("https://client-s.gateway.messenger.live.com/v1/users/ME/conversations?startTime=0&pageSize=200&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
             options.setData("");
             options.setType(RequestType.OPTIONS);
             options.makeRequest(usr);
-            //BasePacket/builder bug - can't reuse same instance
-            BasePacket packet = new BasePacket(api);
+            //PacketBuilder/builder bug - can't reuse same instance
+            PacketBuilder packet = new PacketBuilder(api);
             packet.setUrl("https://client-s.gateway.messenger.live.com/v1/users/ME/conversations?startTime=0&pageSize=200&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
             packet.setData("");
             packet.setType(RequestType.GET);
@@ -47,7 +47,7 @@ public class GetConvos {
                     String id = recent.getString("id").split(":")[1].split("@")[0];
                     Group group = new Group(id, "", null);
                     group = this.setTopicAndPic(recent.getString("id"), group);
-                    BasePacket members = new BasePacket(api);
+                    PacketBuilder members = new PacketBuilder(api);
                     members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + recent.getString("id") + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
                     members.setType(RequestType.GET);
                     ArrayList<GroupUser> groupMembers = new ArrayList<GroupUser>();
@@ -82,7 +82,7 @@ public class GetConvos {
     }
 
     public Group setTopicAndPic(String id, Group group){
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setType(RequestType.GET);
         packet.setUrl("https://client-s.gateway.messenger.live.com/v1/threads/" + id +"?view=msnp24Equivalent");
         String data = packet.makeRequest(usr);

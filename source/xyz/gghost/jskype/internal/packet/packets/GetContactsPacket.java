@@ -1,13 +1,12 @@
 package xyz.gghost.jskype.internal.packet.packets;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.exception.BadResponseException;
 import xyz.gghost.jskype.exception.FailedToGetContactsException;
-import xyz.gghost.jskype.internal.packet.BasePacket;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.var.User;
 
@@ -25,7 +24,7 @@ public class GetContactsPacket {
     public ArrayList<User> getContacts() throws FailedToGetContactsException, BadResponseException {
         ArrayList<User> contacts = new ArrayList<User>();
         ArrayList<String> usernames = new ArrayList<String>();
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setUrl("https://contacts.skype.com/contacts/v1/users/" + usr.getUsername().toLowerCase() + "/contacts?filter=contacts");
         packet.setType(RequestType.OPTIONS);
         packet.getData();

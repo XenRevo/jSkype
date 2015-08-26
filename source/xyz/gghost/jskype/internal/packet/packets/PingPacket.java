@@ -1,7 +1,7 @@
 package xyz.gghost.jskype.internal.packet.packets;
 
 import xyz.gghost.jskype.api.SkypeAPI;
-import xyz.gghost.jskype.internal.packet.BasePacket;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
 
 public class PingPacket {
@@ -13,7 +13,7 @@ public class PingPacket {
     }
 
     public void doNow() {
-        BasePacket ping = new BasePacket(api);
+        PacketBuilder ping = new PacketBuilder(api);
         ping.setType(RequestType.POST);
         ping.setUrl("https://web.skype.com/api/v1/session-ping");
         ping.setData("sessionId=" + api.getUuid().toString());

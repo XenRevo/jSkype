@@ -2,18 +2,12 @@ package xyz.gghost.jskype.internal.packet.packets;
 
 import org.json.JSONObject;
 import xyz.gghost.jskype.api.SkypeAPI;
-import xyz.gghost.jskype.internal.packet.BasePacket;
-import xyz.gghost.jskype.internal.packet.BasePacketUploader;
-import xyz.gghost.jskype.internal.packet.Header;
-import xyz.gghost.jskype.internal.packet.RequestType;
+import xyz.gghost.jskype.internal.packet.*;
+import xyz.gghost.jskype.internal.packet.PacketBuilderUploader;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.file.Files;
-import java.util.stream.Collectors;
 
 /**
  * Created by Ghost on 26/08/2015.
@@ -42,7 +36,7 @@ public class PingPrepPacket {
     }
 
     public String getId(){
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setUrl("https://api.asm.skype.com/v1/objects");
         packet.setData(" ");
         packet.setSendLoginHeaders(false);
@@ -54,7 +48,7 @@ public class PingPrepPacket {
         return new JSONObject(data).getString("id");
     }
     public boolean allowRead(String id, String shortId){
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setUrl("https://api.asm.skype.com/v1/objects/" + id + "/permissions");
         packet.setData("{\"19:" + shortId + "@thread.skype\":[\"read\"]}");
         packet.setSendLoginHeaders(false);
@@ -70,7 +64,7 @@ public class PingPrepPacket {
             URL image = new URL(url);
 
             InputStream data = image.openStream();
-            BasePacketUploader packet = new BasePacketUploader(api);
+            PacketBuilderUploader packet = new PacketBuilderUploader(api);
             packet.setUrl("https://api.asm.skype.com/v1/objects/" + id + "/content/imgpsh");
             packet.setSendLoginHeaders(false);
             packet.setFile(true);

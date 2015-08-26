@@ -7,7 +7,7 @@ import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.api.events.*;
 import xyz.gghost.jskype.chat.Chat;
-import xyz.gghost.jskype.internal.packet.BasePacket;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.internal.packet.packets.GetConvos;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
@@ -21,7 +21,7 @@ public class Poller extends Thread {
     private LocalAccount usr;
     private String url;
     private String endpoint;
-    private BasePacket packet;
+    private PacketBuilder packet;
 
 
     public Poller(SkypeAPI api, LocalAccount usr) {
@@ -38,7 +38,7 @@ public class Poller extends Thread {
     }
 
     public void poll() {
-        BasePacket poll = new BasePacket(api);
+        PacketBuilder poll = new PacketBuilder(api);
         poll.setType(RequestType.POST);
         poll.setUrl("https://" + url + "/v1/users/ME/endpoints/SELF/subscriptions/0/poll");
         poll.setData(" ");
@@ -83,6 +83,7 @@ public class Poller extends Thread {
                         for (Conversation groups : usr.getConversations()) {
                             if (groups.getId().equals(shortId)) {
                                 for (GroupUser usr : groups.getConnectedClients()) {
+                                    System.out.println("OLD : " + usr.getAccount().getUsername());
                                     oldUsers.add(usr.getAccount().getUsername().toLowerCase());
                                     oldUsers2.add(usr.getAccount().getUsername().toLowerCase());
                                 }
@@ -109,6 +110,7 @@ public class Poller extends Thread {
                                     GroupUser gu = new GroupUser(ussr);
                                     gu.setRole(role);
                                     users.add(gu);
+                                    System.out.println("NEW : " + gu.getAccount().getUsername());
                                 } catch (Exception e) {
                                     continue;
                                 }
@@ -116,18 +118,27 @@ public class Poller extends Thread {
                             group.setConnectedClients(users);
                             oldUsers.removeAll(newUsers);
                             newUsers.removeAll(oldUsers2);
-                            for (String old : oldUsers) {
-                                api.getEventManager().executeEvent(new UserLeaveEvent(group, new GetProfilePacket(api, usr).getUser(old)));
-                            }
-                            for (String news : newUsers) {
-                                api.getEventManager().executeEvent(new UserJoinEvent(group, new GetProfilePacket(api, usr).getUser(news)));
-                            }
 
                             usr.getConversations().remove(oldGroup);
                             Conversation newConvo = new Conversation(api, group.getChatId(), true);
                             newConvo.setForcedGroupGroup(group);
                             newConvo.setForcedGroup(true);
                             usr.getConversations().add(newConvo);
+
+                            for (String old : oldUsers) {
+                                //System.out.println("OLD : " + old);
+                                if (!old.equals("live"))
+                                    api.getEventManager().executeEvent(new UserLeaveEvent(group, new GetProfilePacket(api, usr).getUser(old)));
+                                return;
+                            }
+                            for (String news : newUsers) {
+                                //System.out.println("NEW : " + news);
+                                if (!news.equals("live"))
+                                 api.getEventManager().executeEvent(new UserJoinEvent(group, new GetProfilePacket(api, usr).getUser(news)));
+                                return;
+                            }
+
+
                         } else {
                             //added to the group
                         }
@@ -250,7 +261,7 @@ public class Poller extends Thread {
                 }
             }
             //get info about group
-            BasePacket packett = new BasePacket(api);
+            PacketBuilder packett = new PacketBuilder(api);
 
             packett.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
             packett.setType(RequestType.GET);
@@ -265,7 +276,7 @@ public class Poller extends Thread {
             group = new GetConvos(api, usr).setTopicAndPic(idLong, group);
             ArrayList<GroupUser> groupMembers = new ArrayList<GroupUser>();
 
-            BasePacket members = new BasePacket(api);
+            PacketBuilder members = new PacketBuilder(api);
             members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
             members.setType(RequestType.GET);
 
@@ -326,7 +337,7 @@ public class Poller extends Thread {
 
     public boolean save() {
         String id = "{\"id\":\"messagingService\",\"type\":\"EndpointPresenceDoc\",\"selfLink\":\"uri\",\"publicInfo\":{\"capabilities\":\"video|audio\",\"type\":\"1\",\"skypeNameVersion\":\"skype.com\",\"nodeInfo\":\"2\",\"version\":\"2\"},\"privateInfo\":{\"epname\":\"Skype\"}}";
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setType(RequestType.PUT);
         packet.setData(id);
         packet.setUrl("https://" + url + "/v1/users/ME/endpoints/" + endpoint + "/presenceDocs/messagingService");
@@ -334,7 +345,7 @@ public class Poller extends Thread {
     }
 
     public boolean reg() {
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         String id = "{\"channelType\":\"httpLongPoll\",\"template\":\"raw\",\"interestedResources\":[\"/v1/users/ME/conversations/ALL/properties\",\"/v1/users/ME/conversations/ALL/messages\",\"/v1/users/ME/contacts/ALL\",\"/v1/threads/ALL\"]}";
         packet.setData(id);
         packet.setType(RequestType.POST);
@@ -343,7 +354,7 @@ public class Poller extends Thread {
     }
 
     public String location() {
-        packet = new BasePacket(api);
+        packet = new PacketBuilder(api);
         packet.setUrl("https://client-s.gateway.messenger.live.com/v1/users/ME/endpoints");
         packet.setType(RequestType.POST);
         packet.setData("{}");

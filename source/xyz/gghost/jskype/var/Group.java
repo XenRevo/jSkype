@@ -13,7 +13,13 @@ import java.util.ConcurrentModificationException;
 @Data
 @Deprecated
 /*
-This class is deprecated. If you're using an event, ignore this deprecated message. Group will be fully replaced with Conversation soon.
+Early 2.0 snapshots:
+This class is deprecated. If you're using an event, ignore this deprecated message.
+Group will be fully replaced with Conversation soon.
+Late 2.0 snapshots:
+This class will remain apart of jSkype due to the legacy methods that are required by
+other parts of the api. Although they could be rewritten in Conversation, this class is
+being kept and will be receivable by the Conversation#getGroup method.
  */
 public class Group {
     private ArrayList<GroupUser> connectedClients = new ArrayList<GroupUser>();

@@ -6,11 +6,10 @@ import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.exception.BadResponseException;
 import xyz.gghost.jskype.exception.NoPendingContactsException;
-import xyz.gghost.jskype.internal.packet.BasePacket;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.var.User;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -25,7 +24,7 @@ public class GetPendingContactsPacket {
     }
 
     public ArrayList<User> getPending() throws NoPendingContactsException, BadResponseException {
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setType(RequestType.GET);
         packet.setUrl("https://api.skype.com/users/self/contacts/auth-request");
         String a = packet.makeRequest(usr);
@@ -50,7 +49,7 @@ public class GetPendingContactsPacket {
 
     public void acceptRequest(String user) {
            String URL = "https://api.skype.com/users/self/contacts/auth-request/" + user + "/accept";
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setData("");
         packet.setUrl(URL);
         packet.setIsForm(true);
@@ -58,7 +57,7 @@ public class GetPendingContactsPacket {
         packet.makeRequest(usr);
         // BasePackets can't be reused
         String URL2 = "https://client-s.gateway.messenger.live.com/v1/users/ME/contacts/8:" + user;
-        BasePacket packet2 = new BasePacket(api);
+        PacketBuilder packet2 = new PacketBuilder(api);
         packet2.setData("");
         packet2.setUrl(URL2);
         packet2.setIsForm(true);
@@ -75,7 +74,7 @@ public class GetPendingContactsPacket {
     }
     public void sendRequest(String user, String message){
         String URL = "https://api.skype.com/users/self/contacts/auth-request/" + user;
-        BasePacket packet = new BasePacket(api);
+        PacketBuilder packet = new PacketBuilder(api);
         packet.setData("greeting=" + URLEncoder.encode(message));
         packet.setUrl(URL);
         packet.setIsForm(true);
