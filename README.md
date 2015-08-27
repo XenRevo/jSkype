@@ -49,7 +49,7 @@ Example email/pass:
 ```java
 SkypeAPI skype = new SkypeAPI("ghost@ghosted.me", "NotGhostBot", "Password");
 ```
-
+If getting groups is taking a while, you can add another boolean to enable experimental multithreading. It isn't recommended but is useful in bot environments
 #Where are all the methods?
 jSkype is split up into two main classes; LocalAccount and SkypeAPI. SkypeAPI is mainly useless, however it contains the LocalAccount instance, which is where the recent groups, contacts, send messages, etc is hold. Checking the JavaDocs would help out, but it's safe to assume most of what you'll want is in SkypeAPI#getUser (LocalAccount)
 
