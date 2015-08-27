@@ -10,7 +10,6 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class PacketBuilder {
@@ -24,6 +23,7 @@ public class PacketBuilder {
     @Getter protected HttpURLConnection con;
     @Getter @Setter protected boolean sendLoginHeaders = true;
     @Getter @Setter protected boolean file = false;
+    @Getter @Setter protected int code = 200;
     public PacketBuilder(SkypeAPI api) {
         this.api = api;
     }
@@ -60,8 +60,8 @@ public class PacketBuilder {
                 wr.flush();
                 wr.close();
             }
-            int responseCode = con.getResponseCode();
-            if (responseCode == 200 || responseCode == 201) {
+            code = con.getResponseCode();
+            if (code == 200 || code == 201) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String inputLine;
                 StringBuffer response = new StringBuffer();
@@ -71,18 +71,18 @@ public class PacketBuilder {
                 in.close();
                 return response.toString() == null ? "" : response.toString();
 
-            } else if (responseCode == 401) {
+            } else if (code == 401) {
                 System.out.println("\n\nBad login...");
                 System.out.println(this.url + " returned 401. \nHave you been running jSkype for more than 2 days?\nWithin 4 seconds the ping-er should relog you in.\n\n");
                 return "---";
-            } else if (responseCode == 204) {
+            } else if (code == 204) {
                 return "";
             } else {
                 //GetProfile will handle the debugging info
                 if(url.equals("https://api.skype.com/users/self/contacts/profiles"))
                     return null;
                 //Debug info
-                System.out.println("Error contacting skype\nUrl: "+ url + "\nCode: "+responseCode + "\nData: " + data );
+                System.out.println("Error contacting skype\nUrl: "+ url + "\nCode: "+code + "\nData: " + data );
                 for (Header header : headers){
                     System.out.println(header.getType() + ": " + header.getData());
                 }

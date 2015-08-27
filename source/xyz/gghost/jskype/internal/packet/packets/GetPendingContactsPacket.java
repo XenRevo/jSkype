@@ -56,9 +56,20 @@ public class GetPendingContactsPacket {
         packet.setType(RequestType.PUT);
         packet.makeRequest(usr);
         // BasePackets can't be reused
-        String URL2 = "https://client-s.gateway.messenger.live.com/v1/users/ME/contacts/8:" + user;
+        String URL2 = "https://client-s.gateway.messenger.live.com/v1/users/ME/contacts/";
         PacketBuilder packet2 = new PacketBuilder(api);
-        packet2.setData("");
+        //TODO: Find a replacement for json.org that supports json building
+        String data  = "{\"contacts\": [";
+        boolean first = true;
+        for (User usr : api.getSkype().getContacts()){
+            data = data + (!first ? "," : "");
+            data = data + "{\"id\": \"" + usr.getUsername() + "\"}";
+            first = false;
+        }
+        data = data + (!first ? "," : "");
+        data = data + "{\"id\": \"" + user + "\"}";
+        data = data  + "]}";packet2.setData(data);
+        //end of json hackky code
         packet2.setUrl(URL2);
         packet2.setIsForm(true);
         packet2.setType(RequestType.PUT);

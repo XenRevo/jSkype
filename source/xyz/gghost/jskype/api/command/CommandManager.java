@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class CommandManager {
     @Getter
 
-    private ArrayList<Command> commands = new ArrayList<Command>();
+    private final ArrayList<Command> commands = new ArrayList<Command>();
 
     public void addCommand(Command cmd) {
         commands.add(cmd);

@@ -53,11 +53,7 @@ public class Conversation extends  Group{
     }
     /** send message to the chat*/
     public Message sendMessage(SkypeAPI api, String text) {
-        if (!userChat) {
-            return new SendMessagePacket(api, api.getSkype()).sendMessage(new Group(id, "", null), new Message(text));
-        } else {
-            return new SendMessagePacket(api, api.getSkype()).sendMessage(id, new Message(text));
-        }
+        return sendMessage(api, new Message(text));
     }
     /** send message to the chat*/
     public Message sendMessage(SkypeAPI api, Message text) {

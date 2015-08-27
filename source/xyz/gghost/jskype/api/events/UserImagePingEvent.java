@@ -1,14 +1,14 @@
 package xyz.gghost.jskype.api.events;
 
 import lombok.Data;
+import lombok.Getter;
 import xyz.gghost.jskype.var.Conversation;
 import xyz.gghost.jskype.var.User;
-
-@Data
+@Getter
 public class UserImagePingEvent extends Event {
-    private User user;
-    private String imageUrl;
-    private Conversation chat;
+    private final User user;
+    private final String imageUrl;
+    private final Conversation chat;
 
     public UserImagePingEvent(Conversation group, User user, String imageUrl) {
         this.user = user;

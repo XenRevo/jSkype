@@ -64,7 +64,6 @@ public class GetConvos {
                             groupMembers.add(gu);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            continue;
                         }
                     }
                     group.setConnectedClients(groupMembers);

@@ -22,8 +22,7 @@ public class GetProfilePacket {
 
     public User getUser(String username) {
         if(username.equalsIgnoreCase("echo123")){
-            User user = new User(username);
-            return user;
+            return minorUserData(username);
         }
         PacketBuilder packet = new PacketBuilder(api);
 
@@ -113,8 +112,7 @@ public class GetProfilePacket {
         }
     }
     private User minorUserData(String username){
-        User user = new User(username);
-        return user;
+        return new User(username);
     }
     public String getDisplayName(String data, int count){
         return (data.split("firstname\":")[count].split("\",\"")[0]).replace("\"", "");

@@ -2,14 +2,9 @@ package xyz.gghost.jskype.internal.threading;
 
 import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
-import xyz.gghost.jskype.api.events.UserJoinEvent;
-import xyz.gghost.jskype.api.events.UserLeaveEvent;
 import xyz.gghost.jskype.exception.AccountUnusableForRecentException;
 import xyz.gghost.jskype.internal.packet.packets.GetConvos;
-import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
 import xyz.gghost.jskype.var.Conversation;
-import xyz.gghost.jskype.var.Group;
-import xyz.gghost.jskype.var.GroupUser;
 
 import java.util.ArrayList;
 

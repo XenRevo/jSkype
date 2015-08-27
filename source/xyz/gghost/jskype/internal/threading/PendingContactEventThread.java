@@ -3,6 +3,7 @@ package xyz.gghost.jskype.internal.threading;
 import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.api.events.UserPendingContactRequestEvent;
+import xyz.gghost.jskype.exception.BadResponseException;
 import xyz.gghost.jskype.exception.NoPendingContactsException;
 import xyz.gghost.jskype.internal.packet.packets.GetContactsPacket;
 import xyz.gghost.jskype.var.User;
@@ -38,7 +39,12 @@ public class PendingContactEventThread extends Thread {
                     for (User user : newRequests)
                         lastUsers.add(user.getUsername());
                 }
-            } catch (NoPendingContactsException e){} catch (Exception e){
+            } catch (NoPendingContactsException e){
+            } catch (BadResponseException e){
+                System.out.println("ATTENTION: FAILED TO GET PENDING CONTACTS DUE TO 500 / NULL DATA");
+                System.out.println("MAY TAKE AN HOUR TO RECOVER - SKYPE BUG");
+                System.out.println("RESTART WOULD FIX THIS BUT IT'S NOT CONFIRMED TO DO SO");
+            } catch (Exception e){
                 e.printStackTrace();
             }
             try {

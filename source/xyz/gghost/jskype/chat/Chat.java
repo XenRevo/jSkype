@@ -2,7 +2,7 @@ package xyz.gghost.jskype.chat;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
-public class Chat {
+public final class Chat {
 
     /**
      * Format text

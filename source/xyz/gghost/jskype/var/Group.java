@@ -5,7 +5,6 @@ import xyz.gghost.jskype.api.LocalAccount;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.internal.packet.packets.SendMessagePacket;
 import xyz.gghost.jskype.internal.packet.packets.UserManagementPacket;
-import xyz.gghost.jskype.internal.threading.Ping;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;

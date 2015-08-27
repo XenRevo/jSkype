@@ -5,9 +5,9 @@ import xyz.gghost.jskype.var.*;
 
 @Data
 public class UserChatEvent extends Event {
-    private User user;
-    private Message msg;
-    private Conversation chat;
+    private final User user;
+    private final Message msg;
+    private final  Conversation chat;
 
     public UserChatEvent(Conversation group, User user, Message msg) {
         this.user = user;

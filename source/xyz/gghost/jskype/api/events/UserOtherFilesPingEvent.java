@@ -1,13 +1,14 @@
 package xyz.gghost.jskype.api.events;
 
 import lombok.Data;
+import lombok.Getter;
 import xyz.gghost.jskype.var.Conversation;
 import xyz.gghost.jskype.var.User;
 
-@Data
+@Getter
 public class UserOtherFilesPingEvent extends Event {
-    private User user;
-    private Conversation chat;
+    private final User user;
+    private final Conversation chat;
 
     public UserOtherFilesPingEvent(Conversation group, User user) {
         this.user = user;

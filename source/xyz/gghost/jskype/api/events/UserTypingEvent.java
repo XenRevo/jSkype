@@ -4,10 +4,10 @@ import lombok.Getter;
 import xyz.gghost.jskype.var.Conversation;
 import xyz.gghost.jskype.var.User;
 
+@Getter
 public class UserTypingEvent extends Event {
-    @Getter
-    private User user;
-    private Conversation chat;
+    private final User user;
+    private final Conversation chat;
 
     public UserTypingEvent(Conversation group, User user) {
         this.user = user;

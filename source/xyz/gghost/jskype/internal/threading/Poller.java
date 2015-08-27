@@ -112,7 +112,6 @@ public class Poller extends Thread {
                                     users.add(gu);
                                     System.out.println("NEW : " + gu.getAccount().getUsername());
                                 } catch (Exception e) {
-                                    continue;
                                 }
                             }
                             group.setConnectedClients(users);
@@ -150,7 +149,6 @@ public class Poller extends Thread {
 
                     //resource json
                     JSONObject resource = object.getJSONObject("resource");
-                    boolean isMessage = (!resource.isNull("messagetype") && resource.getString("messagetype").equals("ThreadActivity/TopicUpdate"));
 
                     //Get topic update
                     if (!resource.isNull("messagetype") && resource.getString("messagetype").equals("ThreadActivity/TopicUpdate")) {
@@ -299,7 +297,6 @@ public class Poller extends Thread {
                     groupMembers.add(gu);
 
                 } catch (Exception e) {
-                    continue;
                 }
             }
             group.setConnectedClients(groupMembers);

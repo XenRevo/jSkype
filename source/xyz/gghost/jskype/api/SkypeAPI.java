@@ -18,7 +18,7 @@ public class SkypeAPI {
     @Getter UUID uuid = UUID.randomUUID();
     @Getter public LocalAccount skype;
     private ArrayList<Group> knownGroups = new ArrayList<Group>();
-    @Getter private EventManager eventManager = new EventManager(this);
+    @Getter private EventManager eventManager = new EventManager();
     @Getter private CommandManager commandManager = new CommandManager();
     private Thread pinger;
     @Getter private Poller poller;

@@ -22,9 +22,7 @@ public class UserManagementPacket {
         PacketBuilder packet = new PacketBuilder(api);
         packet.setUrl("https://client-s.gateway.messenger.live.com/v1/threads/19:" + groupId + "@thread.skype/members/8:" + username);
         packet.setType(RequestType.DELETE);
-        if (packet.makeRequest(usr) != null)
-            return true;
-        return false;
+        return packet.makeRequest(usr) != null;
     }
 
     /**
@@ -35,8 +33,6 @@ public class UserManagementPacket {
         packet.setUrl("https://client-s.gateway.messenger.live.com/v1/threads/19:" + groupId + "@thread.skype/members/8:" + username);
         packet.setData("{\"role\":\"User\"}");
         packet.setType(RequestType.PUT);
-        if (packet.makeRequest(usr) != null)
-            return true;
-        return false;
+        return packet.makeRequest(usr) != null;
     }
 }

@@ -6,7 +6,7 @@ import xyz.gghost.jskype.var.Message;
 
 public abstract class Command {
     @Getter
-    private String[] names;
+    private final String[] names;
 
     /**
      * @param names CommandTest name can be more than one word and must contain your command prefix.

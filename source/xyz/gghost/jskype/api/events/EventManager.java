@@ -7,12 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventManager {
-    private SkypeAPI api;
-    private List<EventListener> listeners = new ArrayList<EventListener>();
 
-    public EventManager(SkypeAPI api) {
-        this.api = api;
-    }
+    private List<EventListener> listeners = new ArrayList<EventListener>();
 
     public void registerListener(EventListener e) {
         listeners.add(e);

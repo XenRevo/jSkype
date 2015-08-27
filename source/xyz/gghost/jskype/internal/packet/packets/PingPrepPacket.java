@@ -2,9 +2,12 @@ package xyz.gghost.jskype.internal.packet.packets;
 
 import org.json.JSONObject;
 import xyz.gghost.jskype.api.SkypeAPI;
-import xyz.gghost.jskype.internal.packet.*;
-import xyz.gghost.jskype.internal.packet.PacketBuilderUploader;
+
+
+import xyz.gghost.jskype.internal.packet.Header;
 import xyz.gghost.jskype.internal.packet.PacketBuilder;
+import xyz.gghost.jskype.internal.packet.PacketBuilderUploader;
+import xyz.gghost.jskype.internal.packet.RequestType;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -55,15 +58,14 @@ public class PingPrepPacket {
         packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken()));
         packet.setType(RequestType.PUT);
         String data = packet.makeRequest(api.getSkype());
-        if (data == null)
-            return false;
-        return true;
+        return data != null;
     }
     public boolean writeData(String id, String url){
         try {
-            URL image = new URL(url);
 
+            URL image = new URL(url);
             InputStream data = image.openStream();
+
             PacketBuilderUploader packet = new PacketBuilderUploader(api);
             packet.setUrl("https://api.asm.skype.com/v1/objects/" + id + "/content/imgpsh");
             packet.setSendLoginHeaders(false);

@@ -7,7 +7,7 @@ import lombok.Data;
  */
 @Data
 public class UserPendingContactRequestEvent {
-    String user;
+    private String user;
     public UserPendingContactRequestEvent(String user){
         this.user = user;
     }

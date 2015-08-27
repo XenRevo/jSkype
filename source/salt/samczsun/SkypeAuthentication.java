@@ -81,7 +81,7 @@ public class SkypeAuthentication {
         }
     }
 
-    public void login(SkypeAPI api, LocalAccount account) throws InvalidCredentialsException, ConnectionException, Exception {
+    public void login(SkypeAPI api, LocalAccount account) throws Exception {
         final Map<String, String> tCookies = new HashMap<String, String>();
         Response loginResponse = postData(account.getEmail(), account.getPassword());
 
