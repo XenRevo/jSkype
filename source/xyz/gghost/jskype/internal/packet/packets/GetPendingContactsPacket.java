@@ -48,14 +48,23 @@ public class GetPendingContactsPacket {
     }
 
     public void acceptRequest(String user) {
-           String URL = "https://api.skype.com/users/self/contacts/auth-request/" + user + "/accept";
+        api.setStfuMode(true);
+        String URL = "https://api.skype.com/users/self/contacts/auth-request/" + user + "/accept";
         PacketBuilder packet = new PacketBuilder(api);
         packet.setData("");
         packet.setUrl(URL);
         packet.setIsForm(true);
         packet.setType(RequestType.PUT);
         packet.makeRequest(usr);
-        // BasePackets can't be reused
+
+
+        PacketBuilder accept = new PacketBuilder(api);
+        accept.setUrl("https://client-s.gateway.messenger.live.com/v1/users/ME/contacts/8:" + user);
+        accept.setIsForm(true);
+        accept.setType(RequestType.PUT);
+        accept.makeRequest(usr);
+
+
         String URL2 = "https://client-s.gateway.messenger.live.com/v1/users/ME/contacts/";
         PacketBuilder packet2 = new PacketBuilder(api);
         //TODO: Find a replacement for json.org that supports json building
@@ -72,8 +81,9 @@ public class GetPendingContactsPacket {
         //end of json hackky code
         packet2.setUrl(URL2);
         packet2.setIsForm(true);
-        packet2.setType(RequestType.PUT);
+        packet2.setType(RequestType.POST);
         packet2.makeRequest(usr);
+        api.setStfuMode(false);
     }
 
     public void acceptRequest(User usr) {

@@ -1,6 +1,7 @@
 package xyz.gghost.jskype.api;
 
 import lombok.Getter;
+import lombok.Setter;
 import xyz.gghost.jskype.api.command.CommandManager;
 import xyz.gghost.jskype.api.events.EventManager;
 import xyz.gghost.jskype.exception.FailedToGetProfileException;
@@ -25,7 +26,7 @@ public class SkypeAPI {
     private Thread contactUpdater;
     private ConvoUpdater convoUpdater;
     private PendingContactEventThread contactThread;
-
+    @Setter @Getter boolean stfuMode = false;
     public SkypeAPI(String email, String user, String pass) {
         this.skype = new LocalAccount(email, user, pass, this);
         init();

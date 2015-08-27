@@ -78,13 +78,15 @@ public class PacketBuilder {
             } else if (code == 204) {
                 return "";
             } else {
-                //GetProfile will handle the debugging info
-                if(url.equals("https://api.skype.com/users/self/contacts/profiles"))
-                    return null;
-                //Debug info
-                System.out.println("Error contacting skype\nUrl: "+ url + "\nCode: "+code + "\nData: " + data );
-                for (Header header : headers){
-                    System.out.println(header.getType() + ": " + header.getData());
+                if (!api.isStfuMode()){
+                    //GetProfile will handle the debugging info
+                    if(url.equals("https://api.skype.com/users/self/contacts/profiles"))
+                        return null;
+                    //Debug info
+                    System.out.println("Error contacting skype\nUrl: "+ url + "\nCode: "+code + "\nData: " + data );
+                    for (Header header : headers){
+                        System.out.println(header.getType() + ": " + header.getData());
+                    }
                 }
                 return null;
             }

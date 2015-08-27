@@ -110,7 +110,6 @@ public class Poller extends Thread {
                                     GroupUser gu = new GroupUser(ussr);
                                     gu.setRole(role);
                                     users.add(gu);
-                                    System.out.println("NEW : " + gu.getAccount().getUsername());
                                 } catch (Exception e) {
                                 }
                             }
@@ -125,13 +124,11 @@ public class Poller extends Thread {
                             usr.getConversations().add(newConvo);
 
                             for (String old : oldUsers) {
-                                //System.out.println("OLD : " + old);
                                 if (!old.equals("live"))
                                     api.getEventManager().executeEvent(new UserLeaveEvent(group, new GetProfilePacket(api, usr).getUser(old)));
                                 return;
                             }
                             for (String news : newUsers) {
-                                //System.out.println("NEW : " + news);
                                 if (!news.equals("live"))
                                  api.getEventManager().executeEvent(new UserJoinEvent(group, new GetProfilePacket(api, usr).getUser(news)));
                                 return;
