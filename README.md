@@ -92,14 +92,14 @@ public class ExampleListener implements EventListener {
 }
 
 public class Test {
-    static boolean inRunning = true;
+    static boolean isRunning = true;
     public static void main(String[] args) {
         SkypeAPI skype = new SkypeAPI("NotGhostBot", "{password here}"); //login
         System.out.println("Loaded Skype..."); //Tell the user that skype has fully initialized - getting contacts, recent, etc can take a few seconds
 
         skype.getEventManager().registerListener(new ExampleListener(skype)); //Register listener
 
-        while (inRunning){} //This program is multithreaded and the main thread doesn't get used, so you'll want an (infinite) delay to keep the program open.
+        while (isRunning){} //This program is multithreaded and the main thread doesn't get used, so you'll want an (infinite) delay to keep the program open.
         skype.stop(); //Close Skype related threads - shutting it down
 
     }
