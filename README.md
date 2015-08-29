@@ -8,7 +8,7 @@ Here at jSkype we make things work, instead of just making blank events, which w
 - Get contacts
 - Add and remove users from groups
 - Integrated command handler for bots
-- User join/leave/chat/typing events
+- User join/leave/chat/typing/imgping/fileping events
 - Send messages
 - Format messages
 - Accept contact requests
