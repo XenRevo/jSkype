@@ -1,7 +1,7 @@
 # jSkype
 Here at jSkype we make things work, instead of just making blank events, which wont work anytime soon. jSkype creation started when skype4web was released, however at the time I was making a private Skype client in Java, not an API. Samczsun, better known as super salter 9000 was creating an extremely limited api at the time of my client creation and still is today. In order to spare people from his limited api, I'm releasing jSkype. 
 
-#Features
+#Features - ALL ARE CONFIRMED TO WORK
 - Ping chats with images
 - Get contact requests
 - Get recent groups
@@ -14,7 +14,6 @@ Here at jSkype we make things work, instead of just making blank events, which w
 - Accept contact requests
 - Send contact requests
 - User information
-
 
 #Downloads, Javadocs, etc
 JavaDocs: http://gghost.xyz/JavaDocs/jSkype
