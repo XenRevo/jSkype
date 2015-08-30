@@ -14,6 +14,7 @@ Here at jSkype we make things work, instead of just making blank events, which w
 - Accept contact requests
 - Send contact requests
 - User information
+- Group info (topic, pic, clients, etc)
 
 #Downloads, Javadocs, etc
 JavaDocs: http://gghost.xyz/JavaDocs/jSkype
@@ -32,7 +33,7 @@ Dependency:
 <dependency>
   <groupId>xyz.gghost</groupId>
   <artifactId>jskype</artifactId>
-  <version>2.10-BETA</version>
+  <version>2.11-BETA</version>
   <scope>compile</scope>
 </dependency>
 ```
