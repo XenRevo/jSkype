@@ -62,10 +62,10 @@ public class LocalAccount extends User {
     }
 
     private void init() {
-        System.out.println("API>Logging in");
+        System.out.println("API> Logging in");
         relog();
-        System.out.println("API>Getting user data");
-        System.out.println("API>Getting contacts");
+        System.out.println("API> Getting user data");
+        System.out.println("API> Getting contacts");
         try {
             new GetContactsPacket(api, this).setupContact();
         } catch (Exception e) {
