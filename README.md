@@ -8,12 +8,13 @@ Here at jSkype we make things work, instead of just making blank events, which w
 - Get contacts
 - Add and remove users from groups
 - Integrated command handler for bots
-- User join/leave/chat/typing events
+- User join/leave/chat/typing/imgping/fileping/new pending contact events
 - Send messages
 - Format messages
 - Accept contact requests
 - Send contact requests
 - User information
+- Group info (topic, pic, clients, etc)
 
 #Downloads, Javadocs, etc
 JavaDocs: http://gghost.xyz/JavaDocs/jSkype
@@ -32,7 +33,11 @@ Dependency:
 <dependency>
   <groupId>xyz.gghost</groupId>
   <artifactId>jskype</artifactId>
+<<<<<<< HEAD
   <version>2.12-BETA</version>
+=======
+  <version>2.11-BETA</version>
+>>>>>>> origin/master
   <scope>compile</scope>
 </dependency>
 ```
@@ -124,9 +129,10 @@ public class CommandTest extends Command{
   
     @Override 
     public void called(Message msg, Conversation group, String args){ 
-    //msg = orignal message
-    //group = group the message was received from 
-    //args = everything after the comandname (prefix + command)
+        //msg = orignal message
+        //group = group the message was received from 
+        //args = everything after the comandname (prefix + command)
+        User sender = msg.getSender();
         if (args.equals("") || args.equals("info")) {
             StringBuilder builder = new StringBuilder();
             builder.append(Chat.bold("CommandTest info:") + "\n");
