@@ -124,9 +124,10 @@ public class CommandTest extends Command{
   
     @Override 
     public void called(Message msg, Conversation group, String args){ 
-    //msg = orignal message
-    //group = group the message was received from 
-    //args = everything after the comandname (prefix + command)
+        //msg = orignal message
+        //group = group the message was received from 
+        //args = everything after the comandname (prefix + command)
+        User sender = msg.getSender();
         if (args.equals("") || args.equals("info")) {
             StringBuilder builder = new StringBuilder();
             builder.append(Chat.bold("CommandTest info:") + "\n");
