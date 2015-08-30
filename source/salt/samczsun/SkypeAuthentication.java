@@ -111,7 +111,8 @@ public class SkypeAuthentication {
             api.cookies = this.serializeCookies(tCookies);
 
         } else if (loginResponseDocument.html().contains("https://www.google.com/recaptcha")) {
-            System.out.println("Your IP is on the Skype recaptcha list. Login to your account on web.skype.com, then come back here :)");
+            if (api.displayErrorMessages())
+             System.out.println("Your IP is on the Skype recaptcha list. Login to your account on web.skype.com, then come back here :)");
             System.exit(-1);
             //GHOST END
         } else {

@@ -15,9 +15,10 @@ public class Conversation extends  Group{
     @Getter @Setter private boolean userChat;
     @Getter @Setter private String id;
     private SkypeAPI api;
-    /** Do not use*/
+    /** Do not use - this is to be used. Usually this will get the group by id, however if it is forced, it'll return and use the forced group*/
     @Setter @Getter private Group forcedGroupGroup;
     @Getter @Setter private boolean forcedGroup = false;
+    /** End of do not use */
     @Getter @Setter private ArrayList<GroupUser> connectedClients = new ArrayList<GroupUser>();
     @Getter @Setter private String topic = "";
 

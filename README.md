@@ -32,7 +32,7 @@ Dependency:
 <dependency>
   <groupId>xyz.gghost</groupId>
   <artifactId>jskype</artifactId>
-  <version>2.10-BETA</version>
+  <version>2.12-BETA</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -104,7 +104,8 @@ public class Test {
     }
 }
 ```
-#Example command handler usage:
+##Example command handler usage:
+#Feature removed!
 To register a command:
 ```java
 skype.getCommandManager().addCommand(new CommandTest(skype, skype.getUser()));

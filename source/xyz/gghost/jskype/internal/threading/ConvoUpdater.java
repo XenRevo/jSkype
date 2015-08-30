@@ -26,24 +26,20 @@ public class ConvoUpdater extends Thread{
             try {
                 if (!groupFail) {
                     //Allow 200 + recent
-                    ArrayList<Conversation> sss = new ArrayList<Conversation>();
                     ArrayList<Conversation> newList = new GetConvos(api, acc).getRecentChats();
-
                     if (newList != null) {
                         acc.setRecentCache(newList);
                         for (Conversation newGroup : newList) {
                             boolean flag = true;
-                            for (Conversation oldGr : acc.getConversations()) {
+                            for (Conversation oldGr : acc.getRecent()) {
                                 if (oldGr.getId().equals(newGroup.getId()))
                                     flag = false;
                             }
                             if (flag)
-                                sss.add(newGroup);
+                                acc.getRecent().add(newGroup);
                         }
-                        acc.getConversations().addAll(sss);
                     }
                 }
-
             } catch (AccountUnusableForRecentException e) {
                 groupFail = true;
             } catch (Exception e){

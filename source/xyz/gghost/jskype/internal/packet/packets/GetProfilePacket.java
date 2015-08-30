@@ -38,7 +38,7 @@ public class GetProfilePacket {
             //TODO: retry
             System.out.println("\nFailed to get profile of " + username  + " due to an internal server error");
             System.out.println("Someone may have blocked you or have high privacy settings.");
-            System.out.println("You can ignore this...\nDEBUG DATA:");
+            System.out.println("You can ignore this...");
 
             return minorUserData(username);
         }

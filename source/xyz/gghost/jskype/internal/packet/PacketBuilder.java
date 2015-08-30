@@ -78,22 +78,31 @@ public class PacketBuilder {
             } else if (code == 204) {
                 return "";
             } else {
-                if (!api.isStfuMode()){
-                    //GetProfile will handle the debugging info
-                    if(url.equals("https://api.skype.com/users/self/contacts/profiles"))
-                        return null;
-                    //Debug info
-                    System.out.println("Error contacting skype\nUrl: "+ url + "\nCode: "+code + "\nData: " + data );
-                    for (Header header : headers){
-                        System.out.println(header.getType() + ": " + header.getData());
+                if (code == 404 && url.toLowerCase().contains("endpoint")){
+                    System.out.println("Lost connection to skype.\nReloggin!");
+                    api.getSkype().relog();
+                    api.getPoller().prepare();
+                }
+                if (api.isDebugMode()) {
+                    if (!api.isStfuMode()) {
+                        //GetProfile will handle the debugging info
+                        if (url.equals("https://api.skype.com/users/self/contacts/profiles"))
+                            return null;
+                        //Debug info
+                        System.out.println("Error contacting skype\nUrl: " + url + "\nCode: " + code + "\nData: " + data);
+                        for (Header header : headers) {
+                            System.out.println(header.getType() + ": " + header.getData());
+                        }
                     }
                 }
                 return null;
             }
         } catch (Exception e) {
-            System.out.println("================================================");
-            System.out.println("========Unable to request  the skype api========");
-            System.out.println("================================================");
+            if (api.displayErrorMessages()) {
+                System.out.println("================================================");
+                System.out.println("========Unable to request  the skype api========");
+                System.out.println("================================================");
+            }
             e.printStackTrace();
             return null;
         }

@@ -21,7 +21,9 @@ public class GetContactsPacket {
         this.api = api;
         this.usr = usr;
     }
-    public ArrayList<User> getContacts() throws FailedToGetContactsException, BadResponseException {
+    public void setupContact() throws FailedToGetContactsException, BadResponseException {
+        if (api.isDebugMode())
+            System.out.println("Updating contacts!");
         ArrayList<User> contacts = new ArrayList<User>();
         ArrayList<String> usernames = new ArrayList<String>();
         PacketBuilder packet = new PacketBuilder(api);
@@ -31,9 +33,10 @@ public class GetContactsPacket {
         packet.setType(RequestType.GET);
         String a = packet.makeRequest(usr);
         if (a == null) {
-            System.out.println("Failed to request Skype for your contacts.");
-            contacts.add(usr);
-            return contacts;
+
+            if (api.displayErrorMessages())
+                System.out.println("Failed to request Skype for your contacts.");
+            usr.getContacts().add(usr);
         }
         try {
             JSONObject jsonObject = new JSONObject(a);
@@ -43,21 +46,16 @@ public class GetContactsPacket {
                 usernames.add(jsonLineItem.getString("id"));
             }
             contacts = new GetProfilePacket(api, usr).getUsers(usernames);
-            if (contacts == null) {
-                return new ArrayList<User>();
-            } else {
+            if (contacts != null) {
                 ArrayList<User> value = new ArrayList<User>();
                 for (User user : contacts) {
                     user.setContact(true);
-                    value.add(user);
+                    usr.getContacts().add(user);
                 }
-                return value;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return contacts;
     }
 }
 

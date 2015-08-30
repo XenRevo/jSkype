@@ -24,15 +24,19 @@ public class PingPrepPacket {
     public String urlToId(String url, String groupId){
         String id = getId();
         if (id == null) {
-            System.out.println("Failed to get id");
+
+            if (api.isDebugMode())
+               System.out.println("Failed to get id");
             return null;
         }
         if (!allowRead(id, groupId)) {
-            System.out.println("Failed to set perms");
+            if (api.isDebugMode())
+                System.out.println("Failed to set perms");
             return null;
         }
         if(!writeData(id, url)){
-            System.out.println("Failed to set image data");
+            if (api.isDebugMode())
+              System.out.println("Failed to set image data");
             return null;
         }
         return id;

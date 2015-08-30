@@ -1,6 +1,7 @@
 package xyz.gghost.jskype.api.events;
 
 import lombok.Data;
+import xyz.gghost.jskype.api.event.Event;
 import xyz.gghost.jskype.var.*;
 
 @Data

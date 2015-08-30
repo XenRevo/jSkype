@@ -2,8 +2,8 @@ package xyz.gghost.jskype.api;
 
 import lombok.Getter;
 import lombok.Setter;
-import xyz.gghost.jskype.api.command.CommandManager;
-import xyz.gghost.jskype.api.events.EventManager;
+
+import xyz.gghost.jskype.api.event.EventManager;
 import xyz.gghost.jskype.exception.FailedToGetProfileException;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
 import xyz.gghost.jskype.internal.threading.*;
@@ -20,13 +20,19 @@ public class SkypeAPI {
     @Getter public LocalAccount skype;
     private ArrayList<Group> knownGroups = new ArrayList<Group>();
     @Getter private EventManager eventManager = new EventManager();
-    @Getter private CommandManager commandManager = new CommandManager();
     private Thread pinger;
     @Getter private Poller poller;
     private Thread contactUpdater;
     private ConvoUpdater convoUpdater;
     private PendingContactEventThread contactThread;
     @Setter @Getter boolean stfuMode = false;
+    /** debug mode*/
+    @Setter @Getter boolean debugMode = false;
+    /** This will allow basic error messages to show but nothing related to debugging*/
+    @Setter boolean basicLogging = true;
+    public boolean displayErrorMessages(){
+        return debugMode || basicLogging;
+    }
     public SkypeAPI(String email, String user, String pass) {
         this.skype = new LocalAccount(email, user, pass, this);
         init();

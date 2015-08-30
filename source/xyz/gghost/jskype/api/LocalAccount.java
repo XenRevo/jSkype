@@ -12,6 +12,7 @@ import xyz.gghost.jskype.internal.packet.packets.GetConvos;
 import xyz.gghost.jskype.internal.packet.packets.GetPendingContactsPacket;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
 import xyz.gghost.jskype.var.Conversation;
+import xyz.gghost.jskype.var.Group;
 import xyz.gghost.jskype.var.User;
 
 import java.util.ArrayList;
@@ -61,22 +62,22 @@ public class LocalAccount extends User {
     }
 
     private void init() {
-        System.out.println("Logging in");
+        System.out.println("API>Logging in");
         relog();
-        System.out.println("Getting user data");
-        System.out.println("Getting contacts");
+        System.out.println("API>Getting user data");
+        System.out.println("API>Getting contacts");
         try {
-            contactCache = new GetContactsPacket(api, this).getContacts();
+            new GetContactsPacket(api, this).setupContact();
         } catch (Exception e) {
-            System.out.println("Failed to get your entire contacts due to a bad account. Try an alt?");
+            System.out.println("API> Failed to get your entire contacts due to a bad account. Try an alt?");
         }
-        System.out.println("Getting groups, non-contact conversations, group information");
+        System.out.println("API> Getting groups, non-contact conversations, group information");
         try {
             recentCache = new GetConvos(api, this).getRecentChats();
         } catch (AccountUnusableForRecentException e) {
-            System.out.println("Failed to get recent contacts due to a bad account. Try an alt?");
+            System.out.println("API> Failed to get recent contacts due to a bad account. Try an alt?");
         }
-        System.out.println("Initialized!");
+        System.out.println("API> Initialized!");
     }
 
     /**
@@ -87,11 +88,13 @@ public class LocalAccount extends User {
         try {
             new SkypeAuthentication().login(api, this);
         } catch (InvalidCredentialsException e) {
-            System.out.println("Bad username + password");
+            if (api.displayErrorMessages())
+                System.out.println("API> Bad username + password");
             System.exit(-1);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Failed to login!");
+            if (api.displayErrorMessages())
+                System.out.println("API> Failed to login!");
             System.exit(-1);
         }
     }
@@ -99,11 +102,10 @@ public class LocalAccount extends User {
     /**
      * Get group by short id (no 19: + @skype blah blah blah)
      */
-    public Conversation getGroupById(String id) {
-
+    public Group getGroupById(String id) {
         for (Conversation group : recentCache) {
             if ((!group.isUserChat()) && group.getId().equals(id))
-                return group;
+                return group.getForcedGroupGroup();
         }
         return null;
     }
@@ -128,13 +130,10 @@ public class LocalAccount extends User {
      * Get contact by username
      */
     public User getContact(String username) {
-
-
         for (User contact : getContacts()) {
             if (contact.getUsername().equalsIgnoreCase(username))
                 return contact;
         }
-
         return null;
     }
 
@@ -157,11 +156,7 @@ public class LocalAccount extends User {
      * Get recent chats - this includes contacts, none-contacts and groups
      */
     public ArrayList<Conversation> getRecent() {
-        try {
-            return recentCache;
-        } catch (Exception e) {
-            return null;
-        }
+        return recentCache;
     }
 
     /**
@@ -201,4 +196,13 @@ public class LocalAccount extends User {
     /**
      * Skype db lookup / search
      */
+
+    /**
+     * Get info about self // although dis class extends User, it doesn't use the users variables. Call this to get uptodate information
+     */
+
+    /**
+     * Get if a user is online
+     */
+
 }

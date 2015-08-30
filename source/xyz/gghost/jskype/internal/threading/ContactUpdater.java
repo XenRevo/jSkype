@@ -26,7 +26,7 @@ public class ContactUpdater extends Thread {
     public void run() {
         while(this.isAlive()){
             try {
-                acc.setContactCache(new GetContactsPacket(api, acc).getContacts());
+              new GetContactsPacket(api, acc).setupContact();
             } catch (Exception e) {}
             try {
                 Thread.sleep(5000);

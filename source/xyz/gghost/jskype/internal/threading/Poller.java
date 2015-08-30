@@ -59,8 +59,10 @@ public class Poller extends Thread {
                         if (!object.getString("resourceLink").contains("8:")) {
                             String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
                             addGroupToRecent(object);
-                            Conversation group = usr.getGroupById(idShort);
-                            chat.setId(group.getId());
+                            Group group = usr.getGroupById(idShort);
+                            chat.setId(group.getChatId());
+                            chat.setForcedGroup(true);
+                            chat.setForcedGroupGroup(group);
                             chat.setUserChat(false);
                         } else {
                             chat.setId(object.getString("resourceLink").split("/8:")[1].split("/")[0]);
@@ -83,7 +85,7 @@ public class Poller extends Thread {
                         for (Conversation groups : usr.getConversations()) {
                             if (groups.getId().equals(shortId)) {
                                 for (GroupUser usr : groups.getConnectedClients()) {
-                                    System.out.println("OLD : " + usr.getAccount().getUsername());
+                                   // System.out.println("OLD : " + usr.getAccount().getUsername());
                                     oldUsers.add(usr.getAccount().getUsername().toLowerCase());
                                     oldUsers2.add(usr.getAccount().getUsername().toLowerCase());
                                 }
@@ -192,8 +194,6 @@ public class Poller extends Thread {
                         message.setUpdateUrl(object.getString("resourceLink").split("/messages/")[0] + "/messages");
                         message.setMessage(content);
 
-
-                        api.getCommandManager().runCommand(message, chat);
                         api.getEventManager().executeEvent(new UserChatEvent(chat, user, message));
 
                     }
