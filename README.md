@@ -104,9 +104,10 @@ public class Test {
     }
 }
 ```
+
 #Example command handler usage:
-#Feature removed!
-##You can use the UserChatEvent instead 
+###Feature removed!
+###You can use the UserChatEvent instead 
 
 #Dependencies
 - commons-lang 3
