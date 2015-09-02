@@ -6,7 +6,6 @@ import xyz.gghost.jskype.api.event.Event;
 import xyz.gghost.jskype.var.Group;
 import xyz.gghost.jskype.var.User;
 
-@Data
 @Getter
 public class UserLeaveEvent extends Event {
     private final User user;
