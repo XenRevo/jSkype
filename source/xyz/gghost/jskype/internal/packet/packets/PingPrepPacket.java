@@ -24,7 +24,6 @@ public class PingPrepPacket {
     public String urlToId(String url, String groupId){
         String id = getId();
         if (id == null) {
-
             if (api.isDebugMode())
                System.out.println("Failed to get id");
             return null;
