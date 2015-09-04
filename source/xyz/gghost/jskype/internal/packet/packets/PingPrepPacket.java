@@ -45,8 +45,8 @@ public class PingPrepPacket {
         PacketBuilder packet = new PacketBuilder(api);
         packet.setUrl("https://api.asm.skype.com/v1/objects");
         packet.setData(" ");
-        packet.setSendLoginHeaders(false);
-        packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken()));
+        packet.setSendLoginHeaders(false); //Disable skype for web authentication
+        packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken())); //Use the windows client login style 
         packet.setType(RequestType.POST);
         String data = packet.makeRequest(api.getSkype());
         if (data == null)
@@ -57,8 +57,8 @@ public class PingPrepPacket {
         PacketBuilder packet = new PacketBuilder(api);
         packet.setUrl("https://api.asm.skype.com/v1/objects/" + id + "/permissions");
         packet.setData("{\"19:" + shortId + "@thread.skype\":[\"read\"]}");
-        packet.setSendLoginHeaders(false);
-        packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken()));
+        packet.setSendLoginHeaders(false); //Disable skype for web authentication
+        packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken())); //Use the windows client login style 
         packet.setType(RequestType.PUT);
         String data = packet.makeRequest(api.getSkype());
         return data != null;
@@ -71,9 +71,9 @@ public class PingPrepPacket {
 
             PacketBuilderUploader packet = new PacketBuilderUploader(api);
             packet.setUrl("https://api.asm.skype.com/v1/objects/" + id + "/content/imgpsh");
-            packet.setSendLoginHeaders(false);
+            packet.setSendLoginHeaders(false); //Disable skype for web authentication
             packet.setFile(true);
-            packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken()));
+            packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken())); //Use the windows client login style 
             packet.setType(RequestType.PUT);
 
             String dataS = packet.makeRequest(api.getSkype(), data);
