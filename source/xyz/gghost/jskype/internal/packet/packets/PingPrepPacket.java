@@ -77,8 +77,8 @@ public class PingPrepPacket {
             packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken()));
             packet.setType(RequestType.PUT);
 
-            String newData = packet.makeRequest(api.getSkype(), data);
-            if (data == null)
+            String dataS = packet.makeRequest(api.getSkype(), data);
+            if (dataS == null)
                 return false;
         }catch (Exception e){
             e.printStackTrace();
