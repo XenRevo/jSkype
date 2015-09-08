@@ -73,8 +73,8 @@ public final class Chat {
      * @param
      * @return Formatted text
      */
-    public static String encodeText(String text){
-        return StringEscapeUtils.escapeHtml4(text);
+    public static String encodeRawText(String text){
+        return StringEscapeUtils.escapeJson(StringEscapeUtils.escapeHtml4(text));
     }
     /**
      * Add emoji to text
@@ -88,7 +88,7 @@ public final class Chat {
         endText = StringEscapeUtils.unescapeHtml3(endText);
         endText = StringEscapeUtils.unescapeHtml3(endText);
         endText = StringEscapeUtils.unescapeXml(endText); //skype is stupid
-        endText = StringEscapeUtils.unescapeJson(endText); //not really needed
+        endText = StringEscapeUtils.unescapeJson(endText);
         return endText;
     }
 

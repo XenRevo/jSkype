@@ -21,8 +21,9 @@ public class PingPacket {
         String data = ping.makeRequest(api.getSkype());
         if (data == null || data.equals("---")) {
             System.out.println("Skype login expired... Reconnecting");
-            api.getSkype().relog();
-            api.getPoller().prepare();
+
+                api.getSkype().relog();
+                api.getPoller().prepare();
         }
 
     }

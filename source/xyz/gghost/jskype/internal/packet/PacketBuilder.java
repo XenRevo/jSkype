@@ -2,14 +2,13 @@ package xyz.gghost.jskype.internal.packet;
 
 import lombok.Getter;
 import lombok.Setter;
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
 
 public class PacketBuilder {
@@ -29,16 +28,16 @@ public class PacketBuilder {
     }
 
     @Deprecated
-    private void addLogin(LocalAccount usr) {
+    public void addLogin(Skype usr) {
         addHeader(new Header("RegistrationToken", usr.getRegToken()));
         addHeader(new Header("X-Skypetoken", usr.getXSkypeToken()));
-       }
+    }
 
     public void addHeader(Header header) {
         headers.add(header);
     }
 
-    public String makeRequest(LocalAccount usr) {
+    public String makeRequest(Skype usr) {
         try {
             URL obj = new URL(url);
             con = (HttpURLConnection) obj.openConnection();
@@ -49,7 +48,7 @@ public class PacketBuilder {
             con.setRequestProperty("User-Agent", "0/7.7.0.103// libhttpX.X");
             con.setRequestProperty("Cookie", api.cookies);
             con.setDoOutput(true);
-            if (sendLoginHeaders )
+            if (sendLoginHeaders)
                 addLogin(usr);
             for (Header s : headers) {
                 con.addRequestProperty(s.getType(), s.getData());
@@ -78,7 +77,7 @@ public class PacketBuilder {
             } else if (code == 204) {
                 return "";
             } else {
-                if (code == 404 && url.toLowerCase().contains("endpoint")){
+                if (code == 404 && url.toLowerCase().contains("endpoint")) {
                     System.out.println("Lost connection to skype.\nReloggin!");
                     api.getSkype().relog();
                     api.getPoller().prepare();
@@ -97,11 +96,15 @@ public class PacketBuilder {
                 }
                 return null;
             }
+        } catch (UnknownHostException | SocketException e) {
+            return null;
         } catch (Exception e) {
-            if (api.displayErrorMessages()) {
+            if (api.displayInfoMessages()) {
                 System.out.println("================================================");
                 System.out.println("========Unable to request  the skype api========");
                 System.out.println("================================================");
+                System.out.println("Error: " + e.getMessage());
+                System.out.println("URL: " + url);
             }
             e.printStackTrace();
             return null;
@@ -113,7 +116,7 @@ public class PacketBuilder {
      *
      * @return
      */
-    public HttpURLConnection simpleRequest(LocalAccount usr) {
+    public HttpURLConnection simpleRequest(Skype usr) {
         try {
 
                 URL obj = new URL(url);
@@ -140,7 +143,6 @@ public class PacketBuilder {
             System.out.println("================================================");
             System.out.println("========Unable to request  the skype api========");
             System.out.println("================================================");
-            e.printStackTrace();
             return null;
         }
     }

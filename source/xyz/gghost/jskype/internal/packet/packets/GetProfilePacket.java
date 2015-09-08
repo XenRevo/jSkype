@@ -1,23 +1,83 @@
-package xyz.gghost.jskype.internal.packet.packets;
+        package xyz.gghost.jskype.internal.packet.packets;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.chat.Chat;
 import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
+import xyz.gghost.jskype.var.LocalAccount;
 import xyz.gghost.jskype.var.User;
 
 import java.util.ArrayList;
 
 public class GetProfilePacket {
     private SkypeAPI api;
-    private LocalAccount usr;
+    private Skype usr;
 
-    public GetProfilePacket(SkypeAPI api, LocalAccount usr) {
+    public GetProfilePacket(SkypeAPI api, Skype usr) {
         this.api = api;
         this.usr = usr;
+    }
+
+
+    public LocalAccount getMe(){
+
+        LocalAccount me = new LocalAccount();
+
+        PacketBuilder admin = new PacketBuilder(api);
+        admin.setType(RequestType.GET);
+        admin.setUrl("https://api.skype.com/users/self");
+        String adminData = admin.makeRequest(usr);
+
+        if(adminData != null){
+            JSONObject jsonA = new JSONObject(adminData);
+            me.setFirstLoginIP(jsonA.getString("registrationIp"));
+            me.setCreationTime(Integer.valueOf(jsonA.getString("registrationDate")));
+            me.setLanguage(jsonA.getString("language"));
+            me.setEmail(jsonA.getString("email"));
+        }
+
+        PacketBuilder profile = new PacketBuilder(api);
+        profile.setType(RequestType.GET);
+        profile.setUrl("https://api.skype.com/users/self/profile");
+        String profileData = admin.makeRequest(usr);
+
+        if(profileData != null){
+            JSONObject json = new JSONObject(profileData);
+            if (!json.isNull("jobtitle"))
+                me.setMicrosoftRank(json.getString("jobtitle"));
+            if (!json.isNull("homepage"))
+                me.setSite(json.getString("homepage"));
+            if (!json.isNull("avatarUrl"))
+                me.setAvatar(json.getString("avatarUrl"));
+            if (!json.isNull("birthday"))
+                me.setDOB(json.getString("birthday"));
+            if (!json.isNull("firstname"))
+                me.setName(json.getString("firstname"));
+            if (!json.isNull("firstname"))
+                me.setDisplayName(json.getString("firstname")); //TODO: fix
+            if (!json.isNull("mood"))
+                me.setMood(Chat.decodeText(json.isNull("richMood") ? (json.isNull("mood") ? "" : json.getString("mood")) : json.getString("richMood")));
+
+            if (!json.isNull("phoneOffice"))
+                me.setPhoneNumber(json.getString("phoneOffice"));
+            if (!json.isNull("phoneHome"))
+                me.setPhoneNumber(json.getString("phoneHome"));
+            if (!json.isNull("phoneMobile"))
+                me.setPhoneNumber(json.getString("phoneMobile"));
+
+            if (!json.isNull("city"))
+                me.setLocation(json.getString("phoneMobile"));
+            if (!json.isNull("country"))
+                me.setLocation(me.getLocation() + ", " + json.getString("country"));
+            if (me.getLocation().startsWith(", "))
+                me.setLocation(me.getLocation().replaceFirst(", ", ""));
+
+
+        }
+        return me;
     }
 
     public User getUser(String username) {

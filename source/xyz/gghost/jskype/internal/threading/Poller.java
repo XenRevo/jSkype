@@ -3,14 +3,16 @@ package xyz.gghost.jskype.internal.threading;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.api.events.*;
 import xyz.gghost.jskype.chat.Chat;
+import xyz.gghost.jskype.internal.impl.Group;
 import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.internal.packet.packets.GetConvos;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
+import xyz.gghost.jskype.internal.packet.packets.GroupInfoPacket;
 import xyz.gghost.jskype.var.*;
 
 import java.util.ArrayList;
@@ -18,13 +20,13 @@ import java.util.ArrayList;
 public class Poller extends Thread {
 
     private SkypeAPI api;
-    private LocalAccount usr;
+    private Skype usr;
     private String url;
     private String endpoint;
     private PacketBuilder packet;
 
 
-    public Poller(SkypeAPI api, LocalAccount usr) {
+    public Poller(SkypeAPI api, Skype usr) {
         this.api = api;
         this.usr = usr;
     }
@@ -56,7 +58,7 @@ public class Poller extends Thread {
                     Conversation chat = new Conversation(api, "", false);
 
                     if (object.getString("resourceLink").contains("conversations/19:") || object.getString("resourceLink").contains("8:")) {
-                        if (!object.getString("resourceLink").contains("8:")) {
+                        if (!object.getString("resourceLink").contains("8:") ) {
                             String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
                             addGroupToRecent(object);
                             Group group = usr.getGroupById(idShort);
@@ -64,18 +66,20 @@ public class Poller extends Thread {
                             chat.setForcedGroup(true);
                             chat.setForcedGroupGroup(group);
                             chat.setUserChat(false);
-                        } else {
+                            //Old skype for web bug that affects some users
+                        } else if (!object.getString("resourceLink").contains("@")){
                             chat.setId(object.getString("resourceLink").split("/8:")[1].split("/")[0]);
                             chat.setUserChat(true);
                         }
                     } else {
-                        System.out.println("Non-group data received from skype. This is ignorable.");
+                        if(api.isDebugMode())
+                            System.out.println("Non-group data received from skype. This is ignorable.");
                     }
 
                     //thread update
                     if (object.getString("resourceType").equals("ThreadUpdate")) {
                         Conversation oldGroup = null;
-                        ArrayList<GroupUser> oldos = new ArrayList<GroupUser>();
+
                         ArrayList<String> oldUsers2 = new ArrayList<String>();
                         ArrayList<String> oldUsers = new ArrayList<String>();
                         ArrayList<GroupUser> users = new ArrayList<GroupUser>();
@@ -84,22 +88,25 @@ public class Poller extends Thread {
                         String shortId = object.getString("resourceLink").split("19:")[1].split("@")[0];
                         for (Conversation groups : usr.getConversations()) {
                             if (groups.getId().equals(shortId)) {
-                                for (GroupUser usr : groups.getConnectedClients()) {
-                                   // System.out.println("OLD : " + usr.getAccount().getUsername());
+                                System.out.println(groups);
+                                System.out.println(groups.getGroup().getConnectedClients());
+                                for (GroupUser usr : groups.getGroup().getConnectedClients()) { //NULL POINTER HERE
                                     oldUsers.add(usr.getAccount().getUsername().toLowerCase());
                                     oldUsers2.add(usr.getAccount().getUsername().toLowerCase());
                                 }
                                 oldGroup = groups;
                             }
                         }
+
                         if (oldGroup != null) {
+
                             JSONObject resource = object.getJSONObject("resource");
+
                             String topic = oldGroup.getTopic();
                             String picture = resource.getJSONObject("properties").isNull("picture") ? "" : resource.getJSONObject("properties").getString("picture");
 
                             Group group = new Group(shortId, topic, null);
                             group.setPictureUrl(picture);
-
                             //user join/leave events
                             for (int ii = 0; ii < object.getJSONObject("resource").getJSONArray("members").length(); ii++) {
                                 JSONObject user = object.getJSONObject("resource").getJSONArray("members").getJSONObject(ii);
@@ -115,28 +122,31 @@ public class Poller extends Thread {
                                 } catch (Exception e) {
                                 }
                             }
+
                             group.setConnectedClients(users);
                             oldUsers.removeAll(newUsers);
                             newUsers.removeAll(oldUsers2);
 
                             usr.getConversations().remove(oldGroup);
+
                             Conversation newConvo = new Conversation(api, group.getChatId(), true);
                             newConvo.setForcedGroupGroup(group);
                             newConvo.setForcedGroup(true);
+
                             usr.getConversations().add(newConvo);
 
                             for (String old : oldUsers) {
                                 if (!old.equals("live"))
-                                    api.getEventManager().executeEvent(new UserLeaveEvent(group, new GetProfilePacket(api, usr).getUser(old)));
-                                return;
+                                    api.getEventManager().executeEvent(new UserLeaveEvent(chat, new GetProfilePacket(api, usr).getUser(old)));
+                                if (!api.isDebugMode())
+                                    return;
                             }
                             for (String news : newUsers) {
                                 if (!news.equals("live"))
-                                 api.getEventManager().executeEvent(new UserJoinEvent(group, new GetProfilePacket(api, usr).getUser(news)));
-                                return;
+                                 api.getEventManager().executeEvent(new UserJoinEvent(chat, new GetProfilePacket(api, usr).getUser(news)));
+                                if (!api.isDebugMode())
+                                    return;
                             }
-
-
                         } else {
                             //added to the group
                         }
@@ -153,10 +163,13 @@ public class Poller extends Thread {
                     if (!resource.isNull("messagetype") && resource.getString("messagetype").equals("ThreadActivity/TopicUpdate")) {
                         String topic = resource.getString("content").split("<value>")[1].split("<\\/value>")[0];
                         topic = Chat.decodeText(topic);
+
                         String username = resource.getString("content").split("<initiator>8:")[1].split("<\\/initiator>")[0];
                         String oldTopic = usr.getGroupById(chat.getId()).getTopic();
+
                         User user = getUser(username, chat);
-                        api.getEventManager().executeEvent(new TopicChangedEvent(chat.getGroup(), user, topic, oldTopic));
+                        api.getEventManager().executeEvent(new TopicChangedEvent(chat, user, topic, oldTopic));
+
                         usr.getGroupById(chat.getId()).setTopic(topic);
                     }
 
@@ -169,18 +182,16 @@ public class Poller extends Thread {
 
                     //Get message
                     if (!resource.isNull("messagetype") && (resource.getString("messagetype").equals("RichText") || resource.getString("messagetype").equals("Text"))) {
-
                         counta ++;
 
                         Message message = new Message();
                         User user = getUser(resource.getString("from").split("8:")[1], chat);
 
-
                         String content = "";
                         if(!resource.isNull("content"))
                             content = Chat.decodeText(resource.getString("content"));
 
-                            if (!resource.isNull("clientmessageid"))
+                        if (!resource.isNull("clientmessageid"))
                             message.setId(resource.getString("clientmessageid"));
 
                         if (!resource.isNull("skypeeditedid")) {
@@ -246,67 +257,16 @@ public class Poller extends Thread {
     }
 
     private void addGroupToRecent(JSONObject object) {
-        try {
-            String idLong = object.getString("resourceLink").split("conversations/")[1].split("/")[0];
-            String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
-            //get if already exists
-            for (Conversation group : usr.getConversations()) {
-                if (group.getId().equals(idShort)) {
-                    return;
-                }
-            }
-            //get info about group
-            PacketBuilder packett = new PacketBuilder(api);
-
-            packett.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
-            packett.setType(RequestType.GET);
-            String data = packett.makeRequest(usr);
-
-            if (data == null)
+        String idLong = object.getString("resourceLink").split("conversations/")[1].split("/")[0];
+        String idShort = object.getString("resourceLink").split("conversations/19:")[1].split("@thread")[0];
+        //get if already exists
+        for (Conversation group : usr.getConversations()) {
+            if (group.getId().equals(idShort)) {
                 return;
-
-            JSONObject recent = new JSONObject(data);
-
-            Group group = new Group(idShort, "", null);
-            group = new GetConvos(api, usr).setTopicAndPic(idLong, group);
-            ArrayList<GroupUser> groupMembers = new ArrayList<GroupUser>();
-
-            PacketBuilder members = new PacketBuilder(api);
-            members.setUrl("https://db3-client-s.gateway.messenger.live.com/v1/threads/" + idLong + "?startTime=143335&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread");
-            members.setType(RequestType.GET);
-
-            String dataa = members.makeRequest(usr);
-
-            if (dataa == null)
-                return;
-
-            JSONArray membersArray = new JSONObject(dataa).getJSONArray("members");
-            for (int ii = 0; ii < membersArray.length(); ii++) {
-                JSONObject member = membersArray.getJSONObject(ii);
-                try {
-                    Role role = Role.USER;
-                    User ussr = usr.getSimpleUser(member.getString("id").split(":")[1]);
-                    if (!member.getString("role").equals("User"))
-                        role = Role.ADMIN;
-
-                    GroupUser gu = new GroupUser(ussr);
-                    gu.setRole(role);
-                    groupMembers.add(gu);
-
-                } catch (Exception e) {
-                }
             }
-            group.setConnectedClients(groupMembers);
-
-            Conversation convo = new Conversation(api, group.getChatId(), true);
-            convo.setForcedGroup(true);
-            convo.setForcedGroupGroup(group);
-            usr.getConversations().add(convo);
-        }catch(Exception e){
-            e.printStackTrace();
         }
+        usr.getConversations().add(new GroupInfoPacket(api, usr).getConvo(idLong));
     }
-
 
     //Old auth code
     public void prepare() {

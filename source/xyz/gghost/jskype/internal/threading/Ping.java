@@ -16,8 +16,7 @@ public class Ping extends Thread {
             ping.doNow();
             try {
                 Thread.sleep(4000);
-            } catch (InterruptedException e) {
-            }
+            } catch (InterruptedException e) {}
         }
 
     }

@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import salt.samczsun.exception.ConnectionException;
 import salt.samczsun.exception.InvalidCredentialsException;
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class SkypeAuthentication {
         }
     }
 
-    public void login(SkypeAPI api, LocalAccount account) throws Exception {
+    public void login(SkypeAPI api, Skype account) throws Exception {
         final Map<String, String> tCookies = new HashMap<String, String>();
         Response loginResponse = postData(account.getEmail(), account.getPassword());
 
@@ -111,7 +111,7 @@ public class SkypeAuthentication {
             api.cookies = this.serializeCookies(tCookies);
 
         } else if (loginResponseDocument.html().contains("https://www.google.com/recaptcha")) {
-            if (api.displayErrorMessages())
+            if (api.displayInfoMessages())
              System.out.println("Your IP is on the Skype recaptcha list. Login to your account on web.skype.com, then come back here :)");
             System.exit(-1);
             //GHOST END

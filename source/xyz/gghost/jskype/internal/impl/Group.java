@@ -1,10 +1,14 @@
-package xyz.gghost.jskype.var;
+package xyz.gghost.jskype.internal.impl;
 
 import lombok.Data;
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.internal.packet.packets.SendMessagePacket;
 import xyz.gghost.jskype.internal.packet.packets.UserManagementPacket;
+import xyz.gghost.jskype.var.GroupUser;
+import xyz.gghost.jskype.var.Message;
+import xyz.gghost.jskype.var.Role;
+import xyz.gghost.jskype.var.User;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -19,6 +23,8 @@ Late 2.0 snapshots:
 This class will remain apart of jSkype due to the legacy methods that are required by
 other parts of the api. Although they could be rewritten in Conversation, this class is
 being kept and will be receivable by the Conversation#getGroup method.
+Near enough 2.0:
+Legacy methods have been removed. This class will now serve as an impl version of Conversation
  */
 public class Group {
     private ArrayList<GroupUser> connectedClients = new ArrayList<GroupUser>();
@@ -29,10 +35,9 @@ public class Group {
     public Group(String chatId, String topic, ArrayList<GroupUser> users) {
         this.chatId = chatId;
         this.topic = topic;
-        this.connectedClients = users;
     }
-    /** checks if the LocalAccount is an admin */
-    public boolean isAdmin(LocalAccount acc){
+    /** checks if the Skype is an admin */
+    public boolean isAdmin(Skype acc){
         return isAdmin(acc.getUsername());
     }
     /** checks if a user is an admin */

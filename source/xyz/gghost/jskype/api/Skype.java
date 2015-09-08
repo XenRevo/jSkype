@@ -2,29 +2,36 @@ package xyz.gghost.jskype.api;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import salt.samczsun.SkypeAuthentication;
+import salt.samczsun.exception.ConnectionException;
 import salt.samczsun.exception.InvalidCredentialsException;
 import xyz.gghost.jskype.exception.AccountUnusableForRecentException;
 import xyz.gghost.jskype.exception.BadResponseException;
 import xyz.gghost.jskype.exception.NoPendingContactsException;
+import xyz.gghost.jskype.internal.impl.MessageHistory;
+import xyz.gghost.jskype.internal.packet.PacketBuilder;
+import xyz.gghost.jskype.internal.packet.PacketBuilderUploader;
+import xyz.gghost.jskype.internal.packet.RequestType;
 import xyz.gghost.jskype.internal.packet.packets.GetContactsPacket;
 import xyz.gghost.jskype.internal.packet.packets.GetConvos;
 import xyz.gghost.jskype.internal.packet.packets.GetPendingContactsPacket;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
 import xyz.gghost.jskype.var.Conversation;
-import xyz.gghost.jskype.var.Group;
+import xyz.gghost.jskype.internal.impl.Group;
+import xyz.gghost.jskype.var.LocalAccount;
 import xyz.gghost.jskype.var.User;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-
-/**
- * original
- * This should be in xyz.gghost.jskype.var, but since it's used for most of the main methods, it's staying in the "root" package
- *
- * @author Ghost
- */
-public class LocalAccount extends User {
+public class Skype {
     private SkypeAPI api;
     @Getter
     @Setter
@@ -44,8 +51,10 @@ public class LocalAccount extends User {
     private ArrayList<User> contactCache = new ArrayList<User>();
     @Setter
     private ArrayList<Conversation> recentCache = new ArrayList<Conversation>();
+    @Getter
+    private HashMap<String, MessageHistory> history = new HashMap<String, MessageHistory>();
 
-    public LocalAccount(String username, String password, SkypeAPI api) {
+    public Skype(String username, String password, SkypeAPI api) {
         this.username = username;
         this.email = username;
         this.password = password;
@@ -53,7 +62,7 @@ public class LocalAccount extends User {
         init();
     }
 
-    public LocalAccount(String email, String username, String password, SkypeAPI api) {
+    public Skype(String email, String username, String password, SkypeAPI api) {
         this.email = email;
         this.username = username;
         this.password = password;
@@ -62,14 +71,18 @@ public class LocalAccount extends User {
     }
 
     private void init() {
-        System.out.println("API> Logging in");
+
+        if (api.displayInfoMessages())
+            System.out.println("API> Logging in");
         relog();
         System.out.println("API> Getting user data");
+           if (api.displayInfoMessages())
         System.out.println("API> Getting contacts");
         try {
             new GetContactsPacket(api, this).setupContact();
         } catch (Exception e) {
-            System.out.println("API> Failed to get your entire contacts due to a bad account. Try an alt?");
+            if (api.displayInfoMessages())
+                 System.out.println("API> Failed to get your entire contacts due to a bad account. Try an alt?");
         }
         System.out.println("API> Getting groups, non-contact conversations, group information");
         try {
@@ -77,27 +90,34 @@ public class LocalAccount extends User {
         } catch (AccountUnusableForRecentException e) {
             System.out.println("API> Failed to get recent contacts due to a bad account. Try an alt?");
         }
-        System.out.println("API> Initialized!");
+        if (api.displayInfoMessages())
+             System.out.println("API> Initialized!");
     }
 
     /**
      * Login
      */
     public void relog() {
-
         try {
             new SkypeAuthentication().login(api, this);
         } catch (InvalidCredentialsException e) {
-            if (api.displayErrorMessages())
+            if (api.displayInfoMessages())
                 System.out.println("API> Bad username + password");
             System.exit(-1);
+        } catch(ConnectionException e) {
+            System.out.println("API> Failed to connect to the internet... Retying in 5 secs");
+            try {
+                Thread.sleep(5000);
+            }catch(InterruptedException ee){}
+            relog();
         } catch (Exception e) {
             e.printStackTrace();
-            if (api.displayErrorMessages())
+            if (api.displayInfoMessages())
                 System.out.println("API> Failed to login!");
             System.exit(-1);
         }
     }
+
 
     /**
      * Get group by short id (no 19: + @skype blah blah blah)
@@ -196,13 +216,55 @@ public class LocalAccount extends User {
     /**
      * Skype db lookup / search
      */
+    public ArrayList<User> searchSkypeDB(String keywords){
+        PacketBuilder packet = new PacketBuilder(api);
+        packet.setType(RequestType.GET);
+        packet.setUrl("https://api.skype.com/search/users/any?keyWord=" + URLEncoder.encode(keywords)+ "&contactTypes[]=skype");
+        String data = packet.makeRequest(this);
+        if (data == null)
+            return null;
 
+        JSONArray jsonArray = new JSONArray(data);
+        ArrayList<String> usernames = new ArrayList<String>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject contact = jsonArray.getJSONObject(i);
+            usernames.add(contact.getJSONObject("ContactCards").getJSONObject("Skype").getString("SkypeName"));
+        }
+        return new GetProfilePacket(api, this).getUsers(usernames);
+    }
     /**
-     * Get info about self // although dis class extends User, it doesn't use the users variables. Call this to get uptodate information
+     * Get user info about the account
      */
-
+    public LocalAccount getAccountInfo(){
+        return new GetProfilePacket(api, this).getMe();
+    }
     /**
-     * Get if a user is online
+     * Change profile picture
      */
+    public void changePictureFromFile(String url){
+        try {;
+            //No point of mkaing a new class just for this one small method
+            PacketBuilderUploader uploader = new PacketBuilderUploader(api);
+            uploader.setSendLoginHeaders(true);
+            uploader.setUrl("https://api.skype.com/users/itsghostbot/profile/avatar");
+            uploader.setType(RequestType.PUT);
+            uploader.makeRequest(this, new FileInputStream(url));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void changePictureFromUrl(String url){
+        try {
+            //No point of mkaing a new class just for this one small method
+            PacketBuilderUploader uploader = new PacketBuilderUploader(api);
+            uploader.setSendLoginHeaders(true);
+            uploader.setUrl("https://api.skype.com/users/itsghostbot/profile/avatar");
+            uploader.setType(RequestType.PUT);
+            URL image = new URL(url);
+            InputStream data = image.openStream();
+            uploader.makeRequest(this, data);
+        }catch (Exception e){
+            e.printStackTrace();}
+    }
 
 }

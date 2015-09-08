@@ -2,7 +2,7 @@ package xyz.gghost.jskype.internal.packet.packets;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.exception.BadResponseException;
 import xyz.gghost.jskype.exception.NoPendingContactsException;
@@ -16,9 +16,9 @@ import java.util.ArrayList;
 public class GetPendingContactsPacket {
 
     private SkypeAPI api;
-    private LocalAccount usr;
+    private Skype usr;
 
-    public GetPendingContactsPacket(SkypeAPI api, LocalAccount usr) {
+    public GetPendingContactsPacket(SkypeAPI api, Skype usr) {
         this.api = api;
         this.usr = usr;
     }

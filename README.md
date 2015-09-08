@@ -14,6 +14,9 @@ Here at jSkype we make things work, instead of just making blank events, which w
 - Accept contact requests
 - Send contact requests
 - User information
+- Search Skype's DB
+- Change your profile picture
+- Get info about yourself
 
 #Downloads, Javadocs, etc
 JavaDocs: http://gghost.xyz/JavaDocs/jSkype

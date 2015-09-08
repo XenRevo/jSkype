@@ -1,6 +1,6 @@
 package xyz.gghost.jskype.internal.packet;
 
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 
 import java.io.*;
@@ -14,7 +14,7 @@ public class PacketBuilderUploader extends PacketBuilder {
     public PacketBuilderUploader(SkypeAPI api) {
         super(api);
     }
-    public String makeRequest(LocalAccount usr, InputStream ss) {
+    public String makeRequest(Skype usr, InputStream ss) {
         try {
 
             //read the file
@@ -39,7 +39,8 @@ public class PacketBuilderUploader extends PacketBuilder {
             con.setRequestProperty("User-Agent", "0/7.7.0.103// libhttpX.X");
             con.setRequestProperty("Cookie", api.cookies);
             con.setDoOutput(true);
-
+            if (sendLoginHeaders)
+                addLogin(usr);
             for (Header s : headers) {
                 con.addRequestProperty(s.getType(), s.getData());
             }

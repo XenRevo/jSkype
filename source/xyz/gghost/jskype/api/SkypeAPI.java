@@ -7,7 +7,7 @@ import xyz.gghost.jskype.api.event.EventManager;
 import xyz.gghost.jskype.exception.FailedToGetProfileException;
 import xyz.gghost.jskype.internal.packet.packets.GetProfilePacket;
 import xyz.gghost.jskype.internal.threading.*;
-import xyz.gghost.jskype.var.Group;
+import xyz.gghost.jskype.internal.impl.Group;
 import xyz.gghost.jskype.var.User;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class SkypeAPI {
 
     public String cookies = "";
     @Getter UUID uuid = UUID.randomUUID();
-    @Getter public LocalAccount skype;
+    @Getter public Skype skype;
     private ArrayList<Group> knownGroups = new ArrayList<Group>();
     @Getter private EventManager eventManager = new EventManager();
     private Thread pinger;
@@ -30,16 +30,17 @@ public class SkypeAPI {
     @Setter @Getter boolean debugMode = false;
     /** This will allow basic error messages to show but nothing related to debugging*/
     @Setter boolean basicLogging = true;
-    public boolean displayErrorMessages(){
+
+    public boolean displayInfoMessages(){
         return debugMode || basicLogging;
     }
     public SkypeAPI(String email, String user, String pass) {
-        this.skype = new LocalAccount(email, user, pass, this);
+        this.skype = new Skype(email, user, pass, this);
         init();
     }
 
     public SkypeAPI(String user, String pass, boolean multithread) {
-        this.skype = new LocalAccount(user, pass, this);
+        this.skype = new Skype(user, pass, this);
         if (multithread) {
             new Thread() {
                 @Override
@@ -52,11 +53,11 @@ public class SkypeAPI {
         }
     }
     public SkypeAPI(String user, String pass) {
-        this.skype = new LocalAccount(user, pass, this);
+        this.skype = new Skype(user, pass, this);
         init();
     }
     public SkypeAPI(String email, String user, String pass, boolean multithread) {
-        this.skype = new LocalAccount(email, user, pass, this);
+        this.skype = new Skype(email, user, pass, this);
         if (multithread) {
             new Thread() {
                 @Override
@@ -97,7 +98,6 @@ public class SkypeAPI {
      * If you don't have some kinda loop, the app will close.
      */
     public void stop() {
-        //DO NOT CHANGE FROM stop() to interrupt()
         pinger.stop();
         poller.stop();
         contactUpdater.stop();

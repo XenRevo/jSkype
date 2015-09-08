@@ -2,6 +2,8 @@ package xyz.gghost.jskype.var;
 
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.internal.packet.packets.SendMessagePacket;
 

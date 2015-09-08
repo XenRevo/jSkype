@@ -2,16 +2,21 @@ package xyz.gghost.jskype.var;
 
 import lombok.Getter;
 import lombok.Setter;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
+import xyz.gghost.jskype.internal.impl.Group;
+import xyz.gghost.jskype.internal.impl.MessageHistory;
 import xyz.gghost.jskype.internal.packet.packets.PingPrepPacket;
 import xyz.gghost.jskype.internal.packet.packets.SendMessagePacket;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by Ghost on 22/08/2015.
- */
-public class Conversation extends  Group{
+public class Conversation {
+    private MessageHistory history = null;
     @Getter @Setter private boolean userChat;
     @Getter @Setter private String id;
     private SkypeAPI api;
@@ -22,10 +27,10 @@ public class Conversation extends  Group{
     @Getter @Setter private ArrayList<GroupUser> connectedClients = new ArrayList<GroupUser>();
     @Getter @Setter private String topic = "";
 
-    /** This class allows backwards and forwards compatibility of the User and Group class.*/
-
     public Conversation(SkypeAPI api, String id, boolean isGroup) {
-        super(id, "", null);
+        AtomicInteger saltiness = new AtomicInteger();
+        saltiness.getAndIncrement();
+
         try {
             if (isGroup) {
                 this.setConnectedClients(api.getSkype().getGroupById(id).getConnectedClients());
@@ -33,11 +38,19 @@ public class Conversation extends  Group{
         }catch(NullPointerException e){
             //jSkype is still loading
         }
-        this.userChat = !isGroup;
+        userChat = !isGroup;
         this.id = id;
         this.api = api;
     }
 
+    /** get profile picture */
+    public String getPicture(){
+        if (isUserChat())
+            return api.getSkype().getUserByUsername(id).getPictureUrl();
+        else
+            return getGroup().getPictureUrl();
+    }
+    /** gets topic */
     public String getTopic(){
         if (!userChat){
             return getGroup().getTopic();
@@ -45,19 +58,33 @@ public class Conversation extends  Group{
         return "";
     }
     /** Send an image (url - not a gif ) to a chat*/
-    public Message sendImageToChat(SkypeAPI api, String URL){
+    public Message sendImageToChat(String URL) {
+        if (!userChat)
+            return new SendMessagePacket(api, api.getSkype()).sendPing(getGroup(), new Message("hi"),  new PingPrepPacket(api).urlToId(URL, id, true));
+        else
+            return new SendMessagePacket(api, api.getSkype()).sendPing(id, new Message("hi"), new PingPrepPacket(api).urlToId(URL, id, false));
+    }
+    /** Send an image (url - not a gif ) to a chat*/
+    public Message sendImageToChat(File file) {
+        if (!userChat)
+            return new SendMessagePacket(api, api.getSkype()).sendPing(getGroup(), new Message("hi"),  new PingPrepPacket(api).urlToId(file, id, true));
+        else
+            return new SendMessagePacket(api, api.getSkype()).sendPing(id, new Message("hi"), new PingPrepPacket(api).urlToId(file, id, false));
+    }
+    /** Send an image (url - not a gif ) to a chat*/
+    public Message sendImageByIdToChat(String id) {
         if (!userChat) {
-            return new SendMessagePacket(api, api.getSkype()).sendPing(getGroup(), new Message("hi"), new PingPrepPacket(api).urlToId(URL, id));
+            return new SendMessagePacket(api, api.getSkype()).sendPing(getGroup(), new Message("hi"), id);
         } else {
-            return new SendMessagePacket(api, api.getSkype()).sendPing(id, new Message("hi"), new PingPrepPacket(api).urlToId(URL, id));
+            return new SendMessagePacket(api, api.getSkype()).sendPing(this.id, new Message("hi"), id);
         }
     }
     /** send message to the chat*/
-    public Message sendMessage(SkypeAPI api, String text) {
-        return sendMessage(api, new Message(text));
+    public Message sendMessage(String text) {
+        return sendMessage(new Message(text));
     }
     /** send message to the chat*/
-    public Message sendMessage(SkypeAPI api, Message text) {
+    public Message sendMessage(Message text) {
         if (!userChat) {
             return new SendMessagePacket(api, api.getSkype()).sendMessage(new Group(id, "", null), text);
         } else {
@@ -100,7 +127,7 @@ public class Conversation extends  Group{
         }else{
             ArrayList<GroupUser> users = new ArrayList<GroupUser>();
             users.add(new GroupUser(api.getSkype().getContact(id)));
-            users.add(new GroupUser(api.getSkype()));
+            users.add(new GroupUser(api.getSkype().getSimpleUser(api.getSkype().getUsername())));
             return users;
         }
     }
@@ -138,6 +165,29 @@ public class Conversation extends  Group{
         return true;
 
     }
-
+    /** leave group */
+    public void leave(Skype skype){
+        if (!isUserChat())
+            kick(skype.getUsername());
+    }
+    /** used by internal shit */
+    public String getLongId(){
+        if (isUserChat())
+            return "8:" + id;
+        else
+            return "19:" + id + "@thread.skype";
+    }
+    /** get message history */
+    public MessageHistory getMessageHistory(){
+        if (api.getSkype().getHistory().containsKey(getLongId()))
+            return api.getSkype().getHistory().get(getLongId());
+        api.getSkype().getHistory().put(getLongId(), new MessageHistory(getLongId(), api, api.getSkype()));
+        return api.getSkype().getHistory().get(getLongId());
+    }
+    /** clear message history */
+    public void clearMessageHistory() {
+        if (api.getSkype().getHistory().containsKey(getLongId()))
+            api.getSkype().getHistory().remove(getLongId());
+    }
 
 }

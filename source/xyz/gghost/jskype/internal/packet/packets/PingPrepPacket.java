@@ -9,6 +9,8 @@ import xyz.gghost.jskype.internal.packet.PacketBuilder;
 import xyz.gghost.jskype.internal.packet.PacketBuilderUploader;
 import xyz.gghost.jskype.internal.packet.RequestType;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -21,21 +23,40 @@ public class PingPrepPacket {
         this.api = api;
     }
 
-    public String urlToId(String url, String groupId){
+    public String urlToId(String url, String groupId, boolean group){
         String id = getId();
         if (id == null) {
             if (api.isDebugMode())
-               System.out.println("Failed to get id");
+                System.out.println("Failed to get id");
             return null;
         }
-        if (!allowRead(id, groupId)) {
+        if (!allowRead(id, groupId, group)) {
             if (api.isDebugMode())
                 System.out.println("Failed to set perms");
             return null;
         }
         if(!writeData(id, url)){
             if (api.isDebugMode())
-              System.out.println("Failed to set image data");
+                System.out.println("Failed to set image data");
+            return null;
+        }
+        return id;
+    }
+    public String urlToId(File url, String groupId, boolean group){
+        String id = getId();
+        if (id == null) {
+            if (api.isDebugMode())
+                System.out.println("Failed to get id");
+            return null;
+        }
+        if (!allowRead(id, groupId, group)) {
+            if (api.isDebugMode())
+                System.out.println("Failed to set perms");
+            return null;
+        }
+        if(!writeData(id, url)){
+            if (api.isDebugMode())
+                System.out.println("Failed to set image data");
             return null;
         }
         return id;
@@ -53,10 +74,14 @@ public class PingPrepPacket {
             return null;
         return new JSONObject(data).getString("id");
     }
-    public boolean allowRead(String id, String shortId){
+    public boolean allowRead(String id, String shortId, boolean group){
         PacketBuilder packet = new PacketBuilder(api);
         packet.setUrl("https://api.asm.skype.com/v1/objects/" + id + "/permissions");
-        packet.setData("{\"19:" + shortId + "@thread.skype\":[\"read\"]}");
+        if (group) {
+            packet.setData("{\"19:" + shortId + "@thread.skype\":[\"read\"]}");
+        }else{
+            packet.setData("{\"8:" + shortId + "\":[\"read\"]}");
+        }
         packet.setSendLoginHeaders(false); //Disable skype for web authentication
         packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken())); //Use the windows client login style 
         packet.setType(RequestType.PUT);
@@ -85,6 +110,25 @@ public class PingPrepPacket {
         }
         return true;
     }
+    public boolean writeData(String id, File url){
+        try {
 
+            InputStream data = new FileInputStream(url);
 
+            PacketBuilderUploader packet = new PacketBuilderUploader(api);
+            packet.setUrl("https://api.asm.skype.com/v1/objects/" + id + "/content/imgpsh");
+            packet.setSendLoginHeaders(false); //Disable skype for web authentication
+            packet.setFile(true);
+            packet.addHeader(new Header("Authorization", "skype_token " + api.getSkype().getXSkypeToken())); //Use the windows client login style
+            packet.setType(RequestType.PUT);
+
+            String dataS = packet.makeRequest(api.getSkype(), data);
+            if (dataS == null)
+                return false;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }

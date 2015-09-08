@@ -1,23 +1,22 @@
 package xyz.gghost.jskype.internal.threading;
 
-import xyz.gghost.jskype.api.LocalAccount;
+import xyz.gghost.jskype.api.Skype;
 import xyz.gghost.jskype.api.SkypeAPI;
 import xyz.gghost.jskype.api.events.UserPendingContactRequestEvent;
 import xyz.gghost.jskype.exception.BadResponseException;
 import xyz.gghost.jskype.exception.NoPendingContactsException;
-import xyz.gghost.jskype.internal.packet.packets.GetContactsPacket;
 import xyz.gghost.jskype.var.User;
 
 import java.util.ArrayList;
 
 public class PendingContactEventThread extends Thread {
 
-    private LocalAccount acc;
+    private Skype acc;
     private SkypeAPI api;
     private boolean firstTime = true;
     private ArrayList<String> lastUsers = new ArrayList<String>();
 
-    public PendingContactEventThread(LocalAccount acc, SkypeAPI api) {
+    public PendingContactEventThread(Skype acc, SkypeAPI api) {
         this.acc = acc;
         this.api = api;
     }
