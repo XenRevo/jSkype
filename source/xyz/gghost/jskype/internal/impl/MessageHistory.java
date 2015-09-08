@@ -43,7 +43,6 @@ public class MessageHistory {
             convo.setUserChat(false);
         }
 
-        convo.sendMessage("Before: " + knownMessagesCount());
 
         String nextUrl = this.nextUrl;
         if (nextUrl == null)
@@ -90,7 +89,6 @@ public class MessageHistory {
                 knownMessages.add(message);
             }
         }
-        convo.sendMessage("After: " + knownMessagesCount());
     }
     public int knownMessagesCount(){
         return knownMessages.size();
