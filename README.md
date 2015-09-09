@@ -127,5 +127,3 @@ public class Test {
 - jsoup (repo contains sams authenticator)
 - lombok
 
-#Keywords
-Java java skype Skype api contacts recent functional powerful 
