@@ -86,12 +86,17 @@ public class Skype {
             if (api.displayInfoMessages())
                  System.out.println("API> Failed to get your entire contacts due to a bad account. Try an alt?");
         }
-        System.out.println("API> Getting groups, non-contact conversations, group information");
+
+        if (api.displayInfoMessages())
+            System.out.println("API> Getting groups, non-contact conversations, group information");
+
         try {
             recentCache = new GetConvos(api, this).getRecentChats();
         } catch (AccountUnusableForRecentException e) {
-            System.out.println("API> Failed to get recent contacts due to a bad account. Try an alt?");
+            if (api.displayInfoMessages())
+                 System.out.println("API> Failed to get recent contacts due to a bad account. Try an alt?");
         }
+
         if (api.displayInfoMessages())
              System.out.println("API> Initialized!");
     }
