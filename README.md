@@ -74,7 +74,7 @@ for (User user : skype.getSkype().getContacts()){
   user.sendMessage(skype, "Hi");
 }
 ```
-Sending a message to all recent groups example:
+Sending a message to all recent groups and contacts example:
 ```java
 for (Conversation group : skype.getSkype().getRecent()){
   group.sendMessage(skype, "Hi");
