@@ -251,7 +251,7 @@ public class Skype {
      */
     public void changePictureFromFile(String url){
         try {;
-            //No point of mkaing a new class just for this one small method
+            //No point of making a new class just for this one small method
             PacketBuilderUploader uploader = new PacketBuilderUploader(api);
             uploader.setSendLoginHeaders(true);
             uploader.setUrl("https://api.skype.com/users/itsghostbot/profile/avatar");
@@ -263,7 +263,7 @@ public class Skype {
     }
     public void changePictureFromUrl(String url){
         try {
-            //No point of mkaing a new class just for this one small method
+            //No point of making a new class just for this one small method
             PacketBuilderUploader uploader = new PacketBuilderUploader(api);
             uploader.setSendLoginHeaders(true);
             uploader.setUrl("https://api.skype.com/users/itsghostbot/profile/avatar");
@@ -272,7 +272,8 @@ public class Skype {
             InputStream data = image.openStream();
             uploader.makeRequest(this, data);
         }catch (Exception e){
-            e.printStackTrace();}
+            e.printStackTrace();
+        }
     }
 
 }
