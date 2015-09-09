@@ -15,7 +15,8 @@ jSkype creation started when skype4web was released, however at the time I was m
 - Search Skype's DB
 - Change your profile picture
 - Get info about yourself
-
+- Always online (Doesn't break after 2 days plus can survive internet shortage)
+ 
 #Events
 - Edit message (UserChatEvent#isEdited)
 - TopicChangedEvent
