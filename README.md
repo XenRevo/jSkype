@@ -7,7 +7,6 @@ jSkype creation started when skype4web was released, however at the time I was m
 - Get recent groups
 - Get contacts
 - Add and remove users from groups
-- Integrated command handler for bots
 - Send messages
 - Format messages
 - Accept contact requests
