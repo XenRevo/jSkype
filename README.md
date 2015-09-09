@@ -122,6 +122,12 @@ public class Test {
 ###Feature removed!
 ###You can use the UserChatEvent instead 
 
+#TODO
+- Start using interfaces 
+- Handle calls (Windows only + semi compatible with wine)
+- Handle voice mail
+- User promoted event
+
 #Dependencies
 - commons-lang 3
 - org.json (repo contains fork)
