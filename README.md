@@ -8,7 +8,7 @@ jSkype creation started when skype4web was released, however at the time I was m
 - Get contacts
 - Add and remove users from groups
 - Integrated command handler for bots
-- User join/leave/chat/typing/imgping/fileping/new pending contact events
+- User join/leave/chat(+ UserChatEvent#isEdited)/typing/imgping/fileping/new pending contact events
 - Send messages
 - Format messages
 - Accept contact requests
