@@ -16,6 +16,6 @@ public class LocalAccount {
     private String avatar;
     private String firstLoginIP;
     private String language;
-    private int creationTime;
+    private String creationTime;
     private String microsoftRank;
 }

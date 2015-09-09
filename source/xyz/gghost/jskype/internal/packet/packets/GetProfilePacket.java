@@ -28,21 +28,25 @@ public class GetProfilePacket {
 
         PacketBuilder admin = new PacketBuilder(api);
         admin.setType(RequestType.GET);
-        admin.setUrl("https://api.skype.com/users/self");
+        admin.setUrl("https://api.skype.com/users/self/");
         String adminData = admin.makeRequest(usr);
 
         if(adminData != null){
             JSONObject jsonA = new JSONObject(adminData);
-            me.setFirstLoginIP(jsonA.getString("registrationIp"));
-            me.setCreationTime(Integer.valueOf(jsonA.getString("registrationDate")));
-            me.setLanguage(jsonA.getString("language"));
-            me.setEmail(jsonA.getString("email"));
+            if (!jsonA.isNull("registrationIp"))
+                me.setFirstLoginIP(jsonA.getString("registrationIp"));
+            if (!jsonA.isNull("registrationDate"))
+                me.setCreationTime(jsonA.getString("registrationDate"));
+            if (!jsonA.isNull("language"))
+                me.setLanguage(jsonA.getString("language"));
+            if (!jsonA.isNull("email"))
+                me.setEmail(jsonA.getString("email"));
         }
 
         PacketBuilder profile = new PacketBuilder(api);
         profile.setType(RequestType.GET);
-        profile.setUrl("https://api.skype.com/users/self/profile");
-        String profileData = admin.makeRequest(usr);
+        profile.setUrl("https://api.skype.com/users/self/profile/");
+        String profileData = profile.makeRequest(usr);
 
         if(profileData != null){
             JSONObject json = new JSONObject(profileData);

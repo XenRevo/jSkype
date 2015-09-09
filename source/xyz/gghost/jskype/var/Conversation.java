@@ -184,7 +184,7 @@ public class Conversation {
         api.getSkype().getHistory().put(getLongId(), new MessageHistory(getLongId(), api, api.getSkype()));
         return api.getSkype().getHistory().get(getLongId());
     }
-    /** clear message history */
+    /** purge message history */
     public void clearMessageHistory() {
         if (api.getSkype().getHistory().containsKey(getLongId()))
             api.getSkype().getHistory().remove(getLongId());

@@ -74,22 +74,29 @@ public class Skype {
 
         if (api.displayInfoMessages())
             System.out.println("API> Logging in");
+
         relog();
-        System.out.println("API> Getting user data");
-           if (api.displayInfoMessages())
-        System.out.println("API> Getting contacts");
+
+        if (api.displayInfoMessages())
+            System.out.println("API> Getting contacts");
+
         try {
             new GetContactsPacket(api, this).setupContact();
         } catch (Exception e) {
             if (api.displayInfoMessages())
                  System.out.println("API> Failed to get your entire contacts due to a bad account. Try an alt?");
         }
-        System.out.println("API> Getting groups, non-contact conversations, group information");
+
+        if (api.displayInfoMessages())
+            System.out.println("API> Getting groups, non-contact conversations, group information");
+
         try {
             recentCache = new GetConvos(api, this).getRecentChats();
         } catch (AccountUnusableForRecentException e) {
-            System.out.println("API> Failed to get recent contacts due to a bad account. Try an alt?");
+            if (api.displayInfoMessages())
+                 System.out.println("API> Failed to get recent contacts due to a bad account. Try an alt?");
         }
+
         if (api.displayInfoMessages())
              System.out.println("API> Initialized!");
     }
@@ -105,6 +112,7 @@ public class Skype {
                 System.out.println("API> Bad username + password");
             System.exit(-1);
         } catch(ConnectionException e) {
+            e.printStackTrace();
             System.out.println("API> Failed to connect to the internet... Retying in 5 secs");
             try {
                 Thread.sleep(5000);
@@ -126,6 +134,17 @@ public class Skype {
         for (Conversation group : recentCache) {
             if ((!group.isUserChat()) && group.getId().equals(id))
                 return group.getForcedGroupGroup();
+        }
+        return null;
+    }
+
+    /**
+     * Get convo by short id (no 19: etc)
+     */
+    public Conversation getConvoByShortId(String id) {
+        for (Conversation group : recentCache) {
+            if ((!group.isUserChat()) && group.getId().equals(id))
+                return group;
         }
         return null;
     }
@@ -243,7 +262,7 @@ public class Skype {
      */
     public void changePictureFromFile(String url){
         try {;
-            //No point of mkaing a new class just for this one small method
+            //No point of making a new class just for this one small method
             PacketBuilderUploader uploader = new PacketBuilderUploader(api);
             uploader.setSendLoginHeaders(true);
             uploader.setUrl("https://api.skype.com/users/itsghostbot/profile/avatar");
@@ -255,7 +274,7 @@ public class Skype {
     }
     public void changePictureFromUrl(String url){
         try {
-            //No point of mkaing a new class just for this one small method
+            //No point of making a new class just for this one small method
             PacketBuilderUploader uploader = new PacketBuilderUploader(api);
             uploader.setSendLoginHeaders(true);
             uploader.setUrl("https://api.skype.com/users/itsghostbot/profile/avatar");
@@ -264,7 +283,8 @@ public class Skype {
             InputStream data = image.openStream();
             uploader.makeRequest(this, data);
         }catch (Exception e){
-            e.printStackTrace();}
+            e.printStackTrace();
+        }
     }
 
 }
