@@ -28,8 +28,6 @@ public class Conversation {
     @Getter @Setter private String topic = "";
 
     public Conversation(SkypeAPI api, String id, boolean isGroup) {
-        AtomicInteger saltiness = new AtomicInteger();
-        saltiness.getAndIncrement();
 
         try {
             if (isGroup) {
