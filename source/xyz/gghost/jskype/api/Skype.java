@@ -74,10 +74,12 @@ public class Skype {
 
         if (api.displayInfoMessages())
             System.out.println("API> Logging in");
+
         relog();
-        System.out.println("API> Getting user data");
-           if (api.displayInfoMessages())
-        System.out.println("API> Getting contacts");
+
+        if (api.displayInfoMessages())
+            System.out.println("API> Getting contacts");
+
         try {
             new GetContactsPacket(api, this).setupContact();
         } catch (Exception e) {
@@ -105,6 +107,7 @@ public class Skype {
                 System.out.println("API> Bad username + password");
             System.exit(-1);
         } catch(ConnectionException e) {
+            e.printStackTrace();
             System.out.println("API> Failed to connect to the internet... Retying in 5 secs");
             try {
                 Thread.sleep(5000);
